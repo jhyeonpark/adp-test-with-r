@@ -2,7 +2,7 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "adp-test-with-r",
+    "title": "R을 활용한 데이터 분석 전문가(ADP) 준비하기",
     "section": "",
     "text": "Preface\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.\n\n1 + 1\n\n[1] 2"
   },
@@ -14,9 +14,30 @@
     "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
   },
   {
+    "objectID": "section_previous_tests.html",
+    "href": "section_previous_tests.html",
+    "title": "ADP 실기시험: 기출문제",
+    "section": "",
+    "text": "R를 활용해 ADP 실기시험 기출문제를 다룸"
+  },
+  {
+    "objectID": "test_27.html",
+    "href": "test_27.html",
+    "title": "2  제27회 ADP 실기 문제 풀이",
+    "section": "",
+    "text": "1. 데이터 확인 및 전처리"
+  },
+  {
+    "objectID": "test_27.html#데이터-탐색eda을-수행하라.",
+    "href": "test_27.html#데이터-탐색eda을-수행하라.",
+    "title": "2  제27회 ADP 실기 문제 풀이",
+    "section": "1.1. 데이터 탐색(EDA)을 수행하라.",
+    "text": "1.1. 데이터 탐색(EDA)을 수행하라."
+  },
+  {
     "objectID": "summary.html",
     "href": "summary.html",
-    "title": "2  Summary",
+    "title": "3  Summary",
     "section": "",
     "text": "In summary, this book has no content whatsoever.\n\n1 + 1\n\n[1] 2"
   },

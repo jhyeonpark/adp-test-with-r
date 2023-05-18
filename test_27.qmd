@@ -1,0 +1,15 @@
+
+
+# 제27회 ADP 실기 문제 풀이 {#sec-previous_tests}
+
+# 1. 데이터 확인 및 전처리 {.unnumbered}
+## 1.1. 데이터 탐색(EDA)을 수행하라. {.unnumbered}
+
+
+
+
+
+# 참고한 사이트 {.unnumbered}
+- https://amaruak00.github.io/2022/12/17/adp27th.html
+- https://www.datamanim.com/dataset/ADPpb/00/27.html
+- https://www.kaggle.com/code/johyunkang/adp-27/notebook
