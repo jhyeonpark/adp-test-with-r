@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -156,7 +190,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#데이터-확인-및-전처리" id="toc-데이터-확인-및-전처리" class="nav-link active" data-scroll-target="#데이터-확인-및-전처리">1. 데이터 확인 및 전처리</a></li>
+  <li><a href="#데이터-전처리" id="toc-데이터-전처리" class="nav-link active" data-scroll-target="#데이터-전처리">1. 데이터 전처리</a></li>
+  <li><a href="#차원축소" id="toc-차원축소" class="nav-link" data-scroll-target="#차원축소">2. 차원축소</a></li>
+  <li><a href="#오버샘플링과-언더샘플링" id="toc-오버샘플링과-언더샘플링" class="nav-link" data-scroll-target="#오버샘플링과-언더샘플링">3. 오버샘플링과 언더샘플링</a></li>
+  <li><a href="#이상탐지-모델" id="toc-이상탐지-모델" class="nav-link" data-scroll-target="#이상탐지-모델">4. 이상탐지 모델</a></li>
   <li><a href="#참고한-사이트" id="toc-참고한-사이트" class="nav-link" data-scroll-target="#참고한-사이트">참고한 사이트</a></li>
   </ul>
 </nav>
@@ -181,10 +218,649 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="데이터-확인-및-전처리" class="level1 unnumbered">
-<h1 class="unnumbered">1. 데이터 확인 및 전처리</h1>
+<section id="데이터-전처리" class="level1 unnumbered">
+<h1 class="unnumbered">1. 데이터 전처리</h1>
 <section id="데이터-탐색eda을-수행하라." class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="데이터-탐색eda을-수행하라.">1.1. 데이터 탐색(EDA)을 수행하라.</h2>
+<p>필요한 패지키를 설치하고 불러온다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, tidymodels, data.table, gt, </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               skimr, ggcorrplot, themis, solitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>데이터를 불러온다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>db_1a <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"test/27/data/problem1.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>탐색적 자료분석(EDA)를 <code>skim</code>으로 수행한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>db_1a <span class="sc">%&gt;%</span> <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">Piped data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">1193</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Key</td>
+<td style="text-align: left;">NULL</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 9%">
+<col style="width: 13%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Time</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">91514.49</td>
+<td style="text-align: right;">47896.08</td>
+<td style="text-align: right;">60.00</td>
+<td style="text-align: right;">50265.00</td>
+<td style="text-align: right;">81797.00</td>
+<td style="text-align: right;">136995.00</td>
+<td style="text-align: right;">172676.00</td>
+<td style="text-align: left;">▃▇▅▅▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.76</td>
+<td style="text-align: right;">3.62</td>
+<td style="text-align: right;">-30.55</td>
+<td style="text-align: right;">-1.30</td>
+<td style="text-align: right;">-0.30</td>
+<td style="text-align: right;">1.25</td>
+<td style="text-align: right;">2.32</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.54</td>
+<td style="text-align: right;">2.66</td>
+<td style="text-align: right;">-33.64</td>
+<td style="text-align: right;">-0.44</td>
+<td style="text-align: right;">0.23</td>
+<td style="text-align: right;">1.11</td>
+<td style="text-align: right;">19.17</td>
+<td style="text-align: left;">▁▁▁▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1.15</td>
+<td style="text-align: right;">3.91</td>
+<td style="text-align: right;">-31.10</td>
+<td style="text-align: right;">-1.61</td>
+<td style="text-align: right;">-0.23</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">3.32</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">2.35</td>
+<td style="text-align: right;">-4.29</td>
+<td style="text-align: right;">-0.61</td>
+<td style="text-align: right;">0.33</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">12.11</td>
+<td style="text-align: left;">▂▇▂▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.41</td>
+<td style="text-align: right;">2.70</td>
+<td style="text-align: right;">-22.11</td>
+<td style="text-align: right;">-0.84</td>
+<td style="text-align: right;">-0.07</td>
+<td style="text-align: right;">0.68</td>
+<td style="text-align: right;">15.28</td>
+<td style="text-align: left;">▁▁▇▅▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.28</td>
+<td style="text-align: right;">1.51</td>
+<td style="text-align: right;">-10.89</td>
+<td style="text-align: right;">-1.02</td>
+<td style="text-align: right;">-0.38</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">6.27</td>
+<td style="text-align: left;">▁▁▆▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V7</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.85</td>
+<td style="text-align: right;">3.40</td>
+<td style="text-align: right;">-37.06</td>
+<td style="text-align: right;">-0.81</td>
+<td style="text-align: right;">-0.08</td>
+<td style="text-align: right;">0.46</td>
+<td style="text-align: right;">8.12</td>
+<td style="text-align: left;">▁▁▁▂▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">2.47</td>
+<td style="text-align: right;">-37.35</td>
+<td style="text-align: right;">-0.22</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">20.01</td>
+<td style="text-align: left;">▁▁▁▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.45</td>
+<td style="text-align: right;">1.66</td>
+<td style="text-align: right;">-11.13</td>
+<td style="text-align: right;">-1.04</td>
+<td style="text-align: right;">-0.21</td>
+<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">5.92</td>
+<td style="text-align: left;">▁▁▃▇▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.90</td>
+<td style="text-align: right;">2.90</td>
+<td style="text-align: right;">-23.23</td>
+<td style="text-align: right;">-0.88</td>
+<td style="text-align: right;">-0.23</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">7.14</td>
+<td style="text-align: left;">▁▁▁▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V11</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.66</td>
+<td style="text-align: right;">1.96</td>
+<td style="text-align: right;">-2.65</td>
+<td style="text-align: right;">-0.60</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">11.67</td>
+<td style="text-align: left;">▇▇▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V12</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1.01</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">-17.23</td>
+<td style="text-align: right;">-0.97</td>
+<td style="text-align: right;">-0.01</td>
+<td style="text-align: right;">0.51</td>
+<td style="text-align: right;">3.11</td>
+<td style="text-align: left;">▁▁▁▂▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">-2.80</td>
+<td style="text-align: right;">-0.69</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.07</td>
+<td style="text-align: left;">▁▅▇▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V14</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1.17</td>
+<td style="text-align: right;">3.23</td>
+<td style="text-align: right;">-18.49</td>
+<td style="text-align: right;">-0.95</td>
+<td style="text-align: right;">-0.10</td>
+<td style="text-align: right;">0.42</td>
+<td style="text-align: right;">3.89</td>
+<td style="text-align: left;">▁▁▁▂▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">-4.50</td>
+<td style="text-align: right;">-0.55</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.66</td>
+<td style="text-align: right;">2.87</td>
+<td style="text-align: left;">▁▁▆▇▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">V16</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-0.63</td>
+<td style="text-align: right;">2.27</td>
+<td style="text-align: right;">-14.13</td>
+<td style="text-align: right;">-0.70</td>
+<td style="text-align: right;">-0.06</td>
+<td style="text-align: right;">0.46</td>
+<td style="text-align: right;">3.14</td>
+<td style="text-align: left;">▁▁▁▃▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">V17</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-1.07</td>
+<td style="text-align: right;">3.81</td>
+<td style="text-align: right;">-25.16</td>
+<td style="text-align: right;">-0.68</td>
+<td style="text-align: right;">-0.15</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">6.74</td>
+<td style="text-align: left;">▁▁▁▇▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Amount</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">88.89</td>
+<td style="text-align: right;">220.14</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">3.54</td>
+<td style="text-align: right;">20.99</td>
+<td style="text-align: right;">77.49</td>
+<td style="text-align: right;">3335.73</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Class</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.37</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>탐색한 결과는 다음과 같다:</p>
+<ul>
+<li>결측치는 존재하지 않음</li>
+<li>데이터는 모두 숫자형(numeric)으로 구성되었으나, Class는 데이터 분포 등으로 미루어보아 요인(factor)로 판단</li>
+<li>Class는 1인 경우가 16.7%로 불균형 라벨로 판단</li>
+</ul>
+<p>종속변수와 독립변수 관계를 시각화한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>db_1a <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># id 생성</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Wide-to-long 변환</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">!</span><span class="fu">c</span>(id, Class)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.factor</span>(Class), <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(name <span class="sc">~</span> ., <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> comma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="변수간-상관관계를-시각화하고-전처리가-필요함을-설명하라" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="변수간-상관관계를-시각화하고-전처리가-필요함을-설명하라">1.2. 변수간 상관관계를 시각화하고 전처리가 필요함을 설명하라</h2>
+<p>상관관계를 시각화한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>db_1a <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>, <span class="st">"Class"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>() <span class="sc">%&gt;%</span> <span class="fu">ggcorrplot</span>(<span class="at">type =</span> <span class="st">"lower"</span>, <span class="at">lab =</span> <span class="cn">TRUE</span>, <span class="at">lab_size =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>V1-V3, V14-V17 등 상관계수가 0.75보다 큰 관계가 보인다. 이를 활용하여 종속변수를 측정하면 다중공선성 문제가 발생하여 정확한 독립변수 관계를 측정하기 어렵다.</p>
+</section>
+</section>
+<section id="차원축소" class="level1 unnumbered">
+<h1 class="unnumbered">2. 차원축소</h1>
+<section id="차원축소-방법-2가지-이상을-비교하고-한-가지를-선택하라." class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="차원축소-방법-2가지-이상을-비교하고-한-가지를-선택하라.">2.1. 차원축소 방법 2가지 이상을 비교하고 한 가지를 선택하라.</h2>
+<p>차원축소 방법에는 PCA 주성분분석과, MDS 다차원 척도법, t-SNE가 있다. 주성분 분석은 데이터 분산을 최대한 보존하면서 차원을 축소하여 정보 손실이 적고 계산 비용이 낮다는 장점이 있지만, 선형 관계에 의존하여 비선형 구조가 잘 표현되기 어렵고 이상치에 민감하게 작동한다. 다차원 척도법은 데이터 샘플 거리를 보존하여 축소하는 방법으로 비선형 구조에도 잘 작동하게 거리 정보를 유지하지만, 계산 비용이 높고 데이터 크기에 민감하다. 마지막으로 t-SEN은 비선형 차원 축소로 시각화에 효과적이지만 하이퍼파라미터에 민감할 수 있다.</p>
+<p>여기서는 가장 기본적이면서 데이터 손실을 줄이는 <strong>PCA 주성분분석</strong>을 활용한다.</p>
+<p>PCA에 필요한 파라미터인 주성분 개수는 아래 scree 그래프로 파악한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>db_1b <span class="ot">&lt;-</span> db_1a <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>, <span class="st">"Class"</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA를 위한 recipe 생성</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(<span class="sc">~</span>., <span class="at">data =</span> db_1b) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># recipe 준비 (학습)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>prep_rec <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Scree 그래프</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>sdev <span class="ot">&lt;-</span> prep_rec<span class="sc">$</span>steps[[<span class="dv">3</span>]]<span class="sc">$</span>res<span class="sc">$</span>sdev</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>percent_variation <span class="ot">&lt;-</span> sdev<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(sdev<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">PC=</span><span class="fu">paste0</span>(<span class="st">"PC"</span>,<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(sdev)),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">var_explained=</span>percent_variation,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PC =</span> <span class="fu">fct_inorder</span>(PC)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>PC,<span class="at">y=</span>var_explained))<span class="sc">+</span><span class="fu">geom_col</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>2개 이상이 되면 주성분이 1개 더 생긴다고 크게 설명되지 않은 분산이 커지지 않는다. 따라서 주성분은 2개로 가정한다.</p>
+<p>2개로 설정한 PCA 결과를 시각화하면 다음과 같다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>db_1b <span class="ot">&lt;-</span> db_1a <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>, <span class="st">"Class"</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># PCA를 위한 recipe 생성</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(<span class="sc">~</span>., <span class="at">data =</span> db_1b) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(), <span class="at">num_comp =</span> <span class="dv">2</span>) <span class="co"># 주성분 2개로 한정</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>prep_rec <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>tidy_rec <span class="ot">&lt;-</span> <span class="fu">tidy</span>(prep_rec, <span class="at">number =</span> <span class="dv">3</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>tidy_rec <span class="sc">%&gt;%</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(component <span class="sc">%in%</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">component =</span> <span class="fu">fct_inorder</span>(component)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, terms, <span class="at">fill =</span> terms)) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>component, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">x =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="오버샘플링과-언더샘플링" class="level1 unnumbered">
+<h1 class="unnumbered">3. 오버샘플링과 언더샘플링</h1>
+<section id="각-샘플링의-장점과-단점을-설명하고-한-가지를-추천하라." class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="각-샘플링의-장점과-단점을-설명하고-한-가지를-추천하라.">3.1. 각 샘플링의 장점과 단점을 설명하고 한 가지를 추천하라.</h2>
+<p>오버샘플링은 소수 클래스의 샘플 수를 늘려 전체 데이터셋의 균형을 맞추는 방법이다.</p>
+<ul>
+<li>장점: 소수 클래스 정보를 모두 활용할 수 있어, 정보 손실이 없음</li>
+<li>단점: 샘플이 과화게 증가하면 모델 과적합 위험</li>
+</ul>
+<p>언더샘플링은 다수 클래스의 샘플 수를 줄여서 전체 데이터셋의 균형을 맞추는 방법이다.</p>
+<ul>
+<li>장점: 다수 샘플이 과하게 많을 경우, 이를 줄여 모델 과적합 방지</li>
+<li>단점: 샘플 줄이는 과정에서 중요한 정보를 잃을 수 있음</li>
+</ul>
+<p>해당 데이터셋에는 오버샘플링을 적용한 것을 추천한다. Class의 소수 클래스의 개수가 20개로, 언더샘플링을 사용할 시 다수 샘플의 정보를 과도하게 잃기 때문이다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(db_1a<span class="sc">$</span>Class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1 
+993 200 </code></pre>
+</div>
+</div>
+</section>
+<section id="알고리즘-2가지-이상을-비교하고-성능을-측정하라." class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="알고리즘-2가지-이상을-비교하고-성능을-측정하라.">3.2. 알고리즘 2가지 이상을 비교하고 성능을 측정하라.</h2>
+<p>두 오버샘플링 알고리즘, 1) SMOTE과 2) upsampling를 사용한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>db_1c <span class="ot">&lt;-</span> db_1a[, <span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>)]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipe 만들기</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Class <span class="sc">~</span> ., <span class="at">data =</span> db_1c) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">Class =</span> <span class="fu">as.factor</span>(Class)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>(), <span class="at">num_comp =</span> <span class="dv">2</span>) <span class="co"># 주성분 2개로 한정</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 모델 정의</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>model_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># SMOTE</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>rec_smote <span class="ot">&lt;-</span> rec <span class="sc">%&gt;%</span> <span class="fu">step_smote</span>(Class) <span class="sc">%&gt;%</span> <span class="fu">prep</span>(db_1c) <span class="sc">%&gt;%</span> <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>rec_upsample <span class="ot">&lt;-</span> rec <span class="sc">%&gt;%</span> <span class="fu">step_upsample</span>(Class) <span class="sc">%&gt;%</span> <span class="fu">prep</span>(db_1c) <span class="sc">%&gt;%</span> <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(rec_smote <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"smote"</span>),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>          rec_upsample <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"upsample"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2, <span class="at">color =</span> model)) <span class="sc">+</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>위 그래프에서 보이듯, 단순히 소수 샘플을 늘린 upsample 알고리즘에 비해 SMOTE 알고리즘이 더 다양한 차원 정보를 포함하고 있어 더 좋은 성능을 보인다고 할 수 있다.</p>
+</section>
+<section id="현재까지-전처리한-데이터를-통해-모델-수행-후-결과를-분석" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="현재까지-전처리한-데이터를-통해-모델-수행-후-결과를-분석">3.3. 현재까지 전처리한 데이터를 통해 모델 수행 후, 결과를 분석</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2023</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>db_1c <span class="ot">&lt;-</span> db_1a[, <span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>)]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipe 만들기</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Class <span class="sc">~</span> ., <span class="at">data =</span> db_1c) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">Class =</span> <span class="fu">as.factor</span>(Class)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>(), <span class="at">num_comp =</span> <span class="dv">2</span>) <span class="co"># 주성분 2개로 한정</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 모델 정의</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>model_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># SMOTE</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>rec_smote <span class="ot">&lt;-</span> rec <span class="sc">%&gt;%</span> <span class="fu">step_smote</span>(Class) <span class="sc">%&gt;%</span> <span class="fu">prep</span>(db_1c)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>wk_smote <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="fu">add_recipe</span>(rec_smote) <span class="sc">%&gt;%</span> <span class="fu">add_model</span>(model_spec)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>cv <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(db_1c)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>result_smote <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  wk_smote, </span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> cv, </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> result_smote <span class="sc">%&gt;%</span> </span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_predictions</span>()</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(result_smote)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  .metric  .estimator  mean     n std_err .config             
+  &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 accuracy binary     0.960    10 0.00671 Preprocessor1_Model1
+2 roc_auc  binary     0.922    10 0.0185  Preprocessor1_Model1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>predictions <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  yardstick<span class="sc">::</span><span class="fu">roc_curve</span>(Class, .pred_0) <span class="sc">%&gt;%</span> <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_27_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>분석 결과, 정확도는 95.9%, AUC는 92.1%로 분류 성능을 보인다.</p>
+</section>
+</section>
+<section id="이상탐지-모델" class="level1 unnumbered">
+<h1 class="unnumbered">4. 이상탐지 모델</h1>
+<section id="이상탐지-모델-2가지-이상을-기술하고-장점과-단점을-설명해라." class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="이상탐지-모델-2가지-이상을-기술하고-장점과-단점을-설명해라."><span class="header-section-number">2.1</span> 4.1. 이상탐지 모델 2가지 이상을 기술하고 장점과 단점을 설명해라.</h2>
+<ul>
+<li>Isolation Forest: 데이터 분포를 가정하지 않고 작동하며, 이상값과 정상값을 분리하는 데 필요한 경로 길이를 기반으로 이상 점수를 계산합니다. 이상값은 일반적으로 더 짧은 경로로 분리될 수 있으므로, 이상 점수가 높을수록 해당 데이터 포인트는 이상값일 가능성이 높음
+<ul>
+<li>장점: 대용량 데이터에 효과적이며, 별도의 정규화 과정이 필요 없음</li>
+<li>단점: 어떻게 이상치를 분리했는지 파악이 어려워 데이터 해석이 힘듦</li>
+</ul></li>
+<li>Autoencoder: 비지도 학습의 일종으로, 원본 입력을 재구성하는 방식으로 작동함. 이상 탐지에서는, 정상 데이터를 사용하여 Autoencoder를 훈련시키고, 이를 사용하여 입력 데이터를 재구성, 이상한 데이터는 재구성 오차가 크게 나타남. 이 재구성 오차를 임계값과 비교하여 데이터 포인트가 이상인지 판별함.
+<ul>
+<li>장점: 비선형성 패턴을 인코딩하고 특성 선택 과정이 필요 없음</li>
+<li>단점: 네트워크 아키텍처에 의존하므로 복잡함</li>
+</ul></li>
+</ul>
+</section>
+<section id="모델-구현하고-3에서-만든-모델과-비교" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="모델-구현하고-3에서-만든-모델과-비교"><span class="header-section-number">2.2</span> 4.2. 모델 구현하고 3에서 만든 모델과 비교</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>db_1c <span class="ot">&lt;-</span> db_1a[, <span class="sc">-</span><span class="fu">c</span>(<span class="st">"Time"</span>)]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipe 만들기</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Class <span class="sc">~</span> ., <span class="at">data =</span> db_1c) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">Class =</span> <span class="fu">as.factor</span>(Class)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(),  <span class="sc">-</span><span class="fu">all_outcomes</span>(), <span class="at">num_comp =</span> <span class="dv">2</span>) <span class="co"># 주성분 2개로 한정</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># SMOTE</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>rec_smote <span class="ot">&lt;-</span> rec <span class="sc">%&gt;%</span> <span class="fu">step_smote</span>(Class) <span class="sc">%&gt;%</span> <span class="fu">prep</span>(db_1c)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>wk_smote <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="fu">add_recipe</span>(rec_smote) <span class="sc">%&gt;%</span> <span class="fu">add_model</span>(model_spec)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>data_preprocessed <span class="ot">&lt;-</span> <span class="fu">juice</span>(rec_smote)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> isolationForest<span class="sc">$</span><span class="fu">new</span>()</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span><span class="fu">fit</span>(data_preprocessed[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(data_preprocessed) <span class="sc">==</span> <span class="st">"Class"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>INFO  [14:05:51.069] dataset has duplicated rows
+INFO  [14:05:51.087] Building Isolation Forest ...
+INFO  [14:05:54.114] done
+INFO  [14:05:54.114] Computing depth of terminal nodes ...
+INFO  [14:05:54.297] done
+INFO  [14:05:54.334] Completed growing isolation forest</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> model<span class="sc">$</span><span class="fu">predict</span>(data_preprocessed[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(data_preprocessed) <span class="sc">==</span> <span class="st">"Class"</span>)])</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data_preprocessed<span class="sc">$</span>anomaly_score <span class="ot">&lt;-</span> scores</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(data_preprocessed<span class="sc">$</span>anomaly_score<span class="sc">$</span>anomaly_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0%       25%       50%       75%      100% 
+0.5820092 0.5827973 0.5847722 0.5955529 0.7654805 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 이상치 점수를 기반으로 이상치 판단</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="fl">0.6</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>data_preprocessed<span class="sc">$</span>anomaly <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(data_preprocessed<span class="sc">$</span>anomaly_score <span class="sc">&gt;</span> threshold, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># SMOTE 후에 모델 훈련 및 성능 측정</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>ttt <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(data_preprocessed<span class="sc">$</span>anomaly)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>data_preprocessed<span class="sc">$</span>anomaly <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ttt<span class="sc">$</span>anomaly_score)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(data_preprocessed<span class="sc">$</span>Class, data_preprocessed<span class="sc">$</span>anomaly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   
+      0   1
+  0 929  64
+  1 649 344</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>tttt <span class="ot">&lt;-</span> data_preprocessed <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conf_mat</span>(<span class="at">truth =</span> Class, <span class="at">estimate =</span> anomaly) </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>class_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, sens, spec)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>data_preprocessed <span class="sc">|&gt;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class_metrics</span>(<span class="at">truth =</span> Class, <span class="at">estimate =</span> anomaly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric  .estimator .estimate
+  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy binary         0.641
+2 sens     binary         0.936
+3 spec     binary         0.346</code></pre>
+</div>
+</div>
 </section>
 </section>
 <section id="참고한-사이트" class="level1 unnumbered">
