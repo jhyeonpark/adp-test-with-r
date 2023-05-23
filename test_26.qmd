@@ -1,0 +1,129 @@
+# 제26회 ADP 실기 문제 풀이 {#sec-previous_tests}
+
+# 1. 
+## 1.1.
+> 결측치를 확인하고 제거하라
+
+필요한 패키지 및 데이터를 불러온다.
+
+```{r}
+pacman::p_load(tidyverse, tidymodels, data.table, gt, 
+               skimr, ggcorrplot, themis, solitude)
+
+db_1a <- fread("test/26/problem1.csv") 
+```
+
+`skim` 함수로 데이터를 먼저 파악한다.
+
+``` {r}
+db_1a %>% skimr::skim()
+```
+
+데이터는 8개 열과 35,801개 관측치로 구성된다. 8개 열 중 5개는 문자, 3개는 수치형 데이터며, 수치형 데이터에서 결측치가 존재한다. Quantity와 UnitPrice 각각 25개, 97개 결측치를 제거한다.
+
+``` {r}
+db_1b <- db_1a %>%
+  filter(!(is.na(Quantity) | is.na(UnitPrice)))
+```
+
+결측치가 제거된 결과를 확인한다.
+
+``` {r}
+db_1b %>% complete_rate()
+```
+
+## 1.2. 
+> 이상치를 제거하는 방법을 설명하고, 이상치를 제거한 후 결과를 통계적으로 나타내라.
+
+이상치는 다음 방법으로 제거할 수 있다:
+
+- 3시그마 원칙: 평균에서 표준편차의 3배 이상 떨어진 값을 제거
+- 상자그림: Box Plot에서 상자 위 아래 연장되는 선인 수염을 벗어나는 값 제거; 1.5 * IQR (사분위수 범위)
+
+데이터 분포를 파악하기 위해 먼저 상자그림으로 시각화를 한다. 수치형 중, CustomerID는 개별 소비자의 고유 번호로 제외하고 나머지 두 수치형 데이터를 기준으로 만든다.
+
+``` {r}
+db_1b %>% select(Quantity, UnitPrice) %>%
+  pivot_longer(cols = everything()) %>% # 모든 변수 long 변환
+  ggplot(aes(x = name, y = value)) +
+  geom_boxplot() + facet_wrap(name ~ ., scales = "free") +
+  theme_bw()
+```
+
+두 변수의 Box Plot에서 수염을 벗어난 이상치가 보여 이를 제거 한다.
+
+``` {r}
+# 이상치 ID 리스트
+db_1b <- db_1b %>%
+  mutate(ID = as.factor(row_number()))  # 고유 ID 부여
+
+list_id_outlier <- db_1b %>%
+  select(ID, Quantity, UnitPrice) %>%
+  pivot_longer(cols = c(Quantity, UnitPrice)) %>% 
+  group_by(name) %>%
+  mutate(IQR = quantile(value, 0.75) - quantile(value, 0.25), # 상자 길이
+         bound_lower = quantile(value, 0.25) - (IQR * 1.5),
+         bound_upper = quantile(value, 0.75) + (IQR * 1.5)) %>%
+  ungroup() %>%
+  filter(!between(value, bound_lower, bound_upper)) %>%
+  select(ID) %>% pull()
+  
+db_1c <- db_1b %>%
+  filter(!(ID %in% list_id_outlier)) 
+```
+
+이상치 제거한 결과를 비교한다.
+
+``` {r}
+db_1b %>% select(ID, Quantity, UnitPrice) %>% skim() %>%
+  filter(skim_type %in% c("numeric")) 
+
+db_1c %>% select(ID, Quantity, UnitPrice) %>% skim() %>%
+  filter(skim_type %in% c("numeric")) 
+```
+
+총 35,679개 관측치 중 27,657개 관측치만이 남았으며, Quantity와 UnitPrice의 극단적인 데이터도 사라졌다. 예를 들어, 전처리 전 데이터의 quantity의 최대값은 2400이지만 이상치 제거 후는 34며, 히스토그램도 극단적이지 않은 정규분포에 가까운 것으로 보인다.
+
+## 1.3.
+> 전처리한 데이터로 Kmeans, DBSCANE 등 방법으로 군집을 생성
+
+전처리 과정을 진행한다. 
+
+- 수량인 Quantity은 음수 값을 가질 수 없으므로, 0보다 작은 값 제거
+- 군집분석에 사용할 변수 선택
+  - InvoiceNo, StockCode, Description, CustomerID는 ID로 적합하지 않음
+  - Quantity, UnitPrice, Country, InvoiceDate는 군집분석 활용
+
+
+``` {r}
+db_1d <- db_1c %>%
+  filter(Quantity > 0)
+```
+
+군집분석에 필요한 패키지를 불러온다.
+
+``` {r}
+pacman::p_load(factoextra)
+```
+
+``` {r}
+factoextra::fviz_nbclust()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
