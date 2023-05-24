@@ -604,8 +604,11 @@ dbscan(db_1d %&gt;% select(-c(InvoiceNo, StockCode, ID, CustomerID)), eps = 10, 
 tsne_result &lt;- Rtsne(db_1d %&gt;% select(-c(InvoiceNo, StockCode, ID, CustomerID)), dims = 2)
 tsne_data &lt;- data.frame(tsne_result$Y)
 colnames(tsne_data) &lt;- c("Dimension1", "Dimension2")
-
 </code></pre>
+</section>
+</section>
+<section id="번" class="level1">
+<h1>3번</h1>
 <blockquote class="blockquote">
 <p>철강 제품의 불량률을 조사하고자 한다. 이 때, 불량률의 90%, 추정오차한계가 5% 이내가 되기 위하여 적절한 표본의 크기 중 최소값은 얼마인가?</p>
 </blockquote>
@@ -632,6 +635,191 @@ colnames(tsne_data) &lt;- c("Dimension1", "Dimension2")
 </div>
 </div>
 </section>
+<section id="번-1" class="level1">
+<h1>4번</h1>
+<blockquote class="blockquote">
+<p>다음은 1월부터 9월까지의 은의 가격이다 <img src="test/26/problem4.png" class="img-fluid"></p>
+</blockquote>
+<section id="번-2" class="level2">
+<h2 class="anchored" data-anchor-id="번-2">4-1번</h2>
+<blockquote class="blockquote">
+<p>은의 가격 및 이동평균값이 3으로 설정된 시계열 그래프를 그려라.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>db_4a <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">month =</span> <span class="fu">c</span>(<span class="fu">paste0</span>(<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>), <span class="st">"월"</span>)),</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">usd =</span>  <span class="fu">c</span>(<span class="fl">41.1</span>, <span class="fl">46.0</span>, <span class="fl">43.2</span>, <span class="fl">55.1</span>, <span class="fl">31.4</span>, <span class="fl">52.0</span>, <span class="fl">60.1</span>, <span class="fl">44.9</span>, <span class="fl">55.1</span>))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>db_4b <span class="ot">&lt;-</span> <span class="fu">recipe</span>(month <span class="sc">~</span> ., <span class="at">data =</span> db_4a) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">usd_window3 =</span> usd) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_window</span>(usd_window3, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> <span class="fu">juice</span>()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>db_4b <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"usd"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">factor</span>(name, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"usd"</span>, <span class="st">"usd_window3"</span>),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"은 가격"</span>, <span class="st">"은 가격(이동평균값 3 기준)"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">y =</span> value, <span class="at">color =</span> name, <span class="at">group =</span> name)) <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"USD/oz"</span>, <span class="at">color =</span> <span class="st">"범례"</span>) <span class="sc">+</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="test_26_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="번-3" class="level2">
+<h2 class="anchored" data-anchor-id="번-3">4-2번</h2>
+<blockquote class="blockquote">
+<p>1월 대비 9월의 은 가격은 얼마나 올랐는가?</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>db_4b_jan <span class="ot">&lt;-</span> <span class="fu">filter</span>(db_4a, month <span class="sc">==</span> <span class="st">"1월"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>db_4b_sep <span class="ot">&lt;-</span> <span class="fu">filter</span>(db_4a, month <span class="sc">==</span> <span class="st">"9월"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(((db_4b_sep<span class="sc">$</span>usd <span class="sc">-</span> db_4b_jan<span class="sc">$</span>usd) <span class="sc">/</span> db_4b_jan<span class="sc">$</span>usd ) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 34.06</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="번-4" class="level1">
+<h1>5번</h1>
+<blockquote class="blockquote">
+<p>A, B, C 선거거구별 W 의원에 대한 찬성, 반대 지지를 나타낸다. 자치구별 지지율이 같은지에 대해서 검정하라.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>db_5a <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  구분 <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"지지 한다"</span>, <span class="st">"지지 안한다"</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  선거구<span class="at">_A =</span> <span class="fu">c</span>(<span class="dv">176</span>, <span class="dv">124</span>),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  선거구<span class="at">_B =</span> <span class="fu">c</span>(<span class="dv">193</span>, <span class="dv">107</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  선거구<span class="at">_C =</span> <span class="fu">c</span>(<span class="dv">159</span>, <span class="dv">141</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="번-5" class="level2">
+<h2 class="anchored" data-anchor-id="번-5">5-1번</h2>
+<blockquote class="blockquote">
+<p>연구가설과 귀무가설을 설정하라.</p>
+</blockquote>
+<p>가설은 다음과 같다:</p>
+<ul>
+<li>귀무가설: 세 선거구의 W 의원에 대한 지지율은 같다.</li>
+<li>연구가설: 적어도 하나의 선거구에서 W 의원에 대한 지지율은 다르다.</li>
+</ul>
+</section>
+<section id="번-6" class="level2">
+<h2 class="anchored" data-anchor-id="번-6">5-2번</h2>
+<blockquote class="blockquote">
+<p>소수점 2자리 반올림하여 통계량을 구하고 95% 수준에서 연구가설 채택여부를 결정하라.</p>
+</blockquote>
+<p>가설을 검정하기 위한 방법으로는 카이제곱 검정을 활용한다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>db_5b <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(db_5a[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"검정통계량:"</span>, <span class="fu">round</span>(db_5b<span class="sc">$</span>statistic, <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>검정통계량: 7.95</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"유의수준: "</span>, (<span class="fu">round</span>(db_5b<span class="sc">$</span>p.value, <span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>유의수준:  0.02</code></pre>
+</div>
+</div>
+<p>분석의 유의 수준은 0.02로 95% 수준인 0.05보다 작아 귀무가설을 기각하게 된다. 따라서, 적어도 하나의 선거구에서 W 의원에 대한 지지율이 다르다는 연구 가설을 수용하게 된다.</p>
+</section>
+</section>
+<section id="번-7" class="level1">
+<h1>6번</h1>
+<blockquote class="blockquote">
+<p>A초등학교 남학생 16명과 여학생 9명의 혈압을 측정한 problem4.csv 파일을 가지고 남녀학생의 평균 혈압에 차이가 없는지 분석하라. 단, 남학생과 여학생의 혈압 데이터는 정규분포를 따르며 등분산임을 가정한다.</p>
+</blockquote>
+</section>
+<section id="번-8" class="level1">
+<h1>6-1번</h1>
+<blockquote class="blockquote">
+<p>연구가설과 귀무가설을 설정하라.</p>
+</blockquote>
+<p>가설은 다음과 같다:</p>
+<ul>
+<li>귀무가설: 남학생과 여학생 집단의 평균 혈압은 같다.</li>
+<li>귀무가설: 남학생의 평균 혈압과 여학생의 평균 혈압은 다르다.</li>
+</ul>
+</section>
+<section id="번-9" class="level1">
+<h1>6-2번</h1>
+<blockquote class="blockquote">
+<p>통게량을 구하고 연구가설 채택 여부를 기술하라.</p>
+</blockquote>
+<p>남성과 여성, 두 집단 간의 평균 차이가 있는 지는 t-test를 통해 검정할 수 있다.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>db_6a <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"test/26/problem4.csv"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(db_6a[gender <span class="sc">%in%</span> <span class="st">"male"</span>]<span class="sc">$</span>pressure, db_6a[<span class="sc">!</span>(gender <span class="sc">%in%</span> <span class="st">"male"</span>)]<span class="sc">$</span>pressure, <span class="at">var.equal =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Two Sample t-test
+
+data:  db_6a[gender %in% "male"]$pressure and db_6a[!(gender %in% "male")]$pressure
+t = 1.5983, df = 23, p-value = 0.1236
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1.856072 14.471350
+sample estimates:
+mean of x mean of y 
+ 96.21875  89.91111 </code></pre>
+</div>
+</div>
+<p>일반적인 유의수준 95% 수준에서 볼 때, 해당 검정 결과의 p-value는 0.1236으로 0.05보다 작지 않아, 귀무가설을 채택하므로 남성과 여성 간 평균 혈압 차이는 없으며 연구가설을 채택하지 못한다.</p>
+</section>
+<section id="번-10" class="level1">
+<h1>6-3번</h1>
+<blockquote class="blockquote">
+<p>6-2번에서 구한 검정 통계량 값을 바탕으로 신뢰구간을 구하라</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">=</span> <span class="dv">16</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">=</span> <span class="dv">9</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>mean1 <span class="ot">=</span> <span class="fu">mean</span>(db_6a[gender <span class="sc">%in%</span> <span class="st">"male"</span>]<span class="sc">$</span>pressure)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>mean2 <span class="ot">=</span> <span class="fu">mean</span>(db_6a[<span class="sc">!</span>(gender <span class="sc">%in%</span> <span class="st">"male"</span>)]<span class="sc">$</span>pressure)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>sd1 <span class="ot">=</span> <span class="fu">sd</span>(db_6a[gender <span class="sc">%in%</span> <span class="st">"male"</span>]<span class="sc">$</span>pressure)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>sd2 <span class="ot">=</span> <span class="fu">sd</span>(db_6a[<span class="sc">!</span>(gender <span class="sc">%in%</span> <span class="st">"male"</span>)]<span class="sc">$</span>pressure)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>se <span class="ot">=</span> <span class="fu">sqrt</span>((sd1<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> n1) <span class="sc">+</span> ((sd2<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> n2))</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>t_value <span class="ot">&lt;-</span> <span class="fu">t.test</span>(db_6a[gender <span class="sc">%in%</span> <span class="st">"male"</span>]<span class="sc">$</span>pressure, db_6a[<span class="sc">!</span>(gender <span class="sc">%in%</span> <span class="st">"male"</span>)]<span class="sc">$</span>pressure, <span class="at">var.equal =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>statistic</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>mean_diff <span class="ot">&lt;-</span> mean1 <span class="sc">-</span> mean2</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> n1 <span class="sc">+</span> n2 <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>t_critical <span class="ot">&lt;-</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, df)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>confidence_interval <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  (mean_diff) <span class="sc">-</span> t_critical <span class="sc">*</span> se, (mean_diff) <span class="sc">+</span> t_critical <span class="sc">*</span> se)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(confidence_interval)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-2.223655 14.83893</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(db_6a[gender <span class="sc">%in%</span> <span class="st">"male"</span>]<span class="sc">$</span>pressure, db_6a[<span class="sc">!</span>(gender <span class="sc">%in%</span> <span class="st">"male"</span>)]<span class="sc">$</span>pressure, <span class="at">var.equal =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Two Sample t-test
+
+data:  db_6a[gender %in% "male"]$pressure and db_6a[!(gender %in% "male")]$pressure
+t = 1.5983, df = 23, p-value = 0.1236
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1.856072 14.471350
+sample estimates:
+mean of x mean of y 
+ 96.21875  89.91111 </code></pre>
+</div>
+</div>
+</section>
+<section id="번-11" class="level1">
+<h1>7번</h1>
 </section>
 
 </main>
