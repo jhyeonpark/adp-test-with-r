@@ -814,12 +814,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> isolationForest<span class="sc">$</span><span class="fu">new</span>()</span>
 <span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span><span class="fu">fit</span>(data_preprocessed[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(data_preprocessed) <span class="sc">==</span> <span class="st">"Class"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>INFO  [17:21:34.916] dataset has duplicated rows
-INFO  [17:21:34.934] Building Isolation Forest ...
-INFO  [17:21:34.972] done
-INFO  [17:21:34.973] Computing depth of terminal nodes ...
-INFO  [17:21:35.175] done
-INFO  [17:21:35.216] Completed growing isolation forest</code></pre>
+<pre><code>INFO  [08:58:05.355] dataset has duplicated rows
+INFO  [08:58:05.374] Building Isolation Forest ...
+INFO  [08:58:05.423] done
+INFO  [08:58:05.423] Computing depth of terminal nodes ...
+INFO  [08:58:05.642] done
+INFO  [08:58:05.682] Completed growing isolation forest</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> model<span class="sc">$</span><span class="fu">predict</span>(data_preprocessed[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(data_preprocessed) <span class="sc">==</span> <span class="st">"Class"</span>)])</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data_preprocessed<span class="sc">$</span>anomaly_score <span class="ot">&lt;-</span> scores</span>
