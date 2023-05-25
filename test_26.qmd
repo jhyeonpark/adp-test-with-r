@@ -1,15 +1,15 @@
 # 제26회 ADP 실기 문제 풀이 {#sec-previous_tests}
 
-# 1.
+# 1번
 
-## 1.1.
+## 1-1번
 
 > 결측치를 확인하고 제거하라
 
 필요한 패키지 및 데이터를 불러온다.
 
 ```{r}
-pacman::p_load(tidyverse, tidymodels, data.table, gt, 
+pacman::p_load(tidyverse, tidymodels, data.table, gt, knitr,
                skimr, ggcorrplot, themis, solitude)
 
 db_1a <- fread("test/26/problem1.csv") 
@@ -34,7 +34,7 @@ db_1b <- db_1a %>%
 db_1b %>% complete_rate()
 ```
 
-## 1.2.
+## 1-2번
 
 > 이상치를 제거하는 방법을 설명하고, 이상치를 제거한 후 결과를 통계적으로 나타내라.
 
@@ -87,50 +87,105 @@ db_1c %>% select(ID, Quantity, UnitPrice) %>% skim() %>%
 
 총 35,679개 관측치 중 27,657개 관측치만이 남았으며, Quantity와 UnitPrice의 극단적인 데이터도 사라졌다. 예를 들어, 전처리 전 데이터의 quantity의 최대값은 2400이지만 이상치 제거 후는 34며, 히스토그램도 극단적이지 않은 정규분포에 가까운 것으로 보인다.
 
-## 1.3.
+## 1-3번
 
 > 전처리한 데이터로 Kmeans, DBSCANE 등 방법으로 군집을 생성
 
 전처리 과정을 진행한다.
 
--   수량인 Quantity은 음수 값을 가질 수 없으므로, 0보다 작은 값 제거
--   군집분석에 사용할 변수 선택
-    -   InvoiceNo, StockCode, Description, CustomerID는 ID로 적합하지 않음
-    -   Quantity, UnitPrice, Country, InvoiceDate는 군집분석 활용
+- 추가 전처리 수행
+ - 수량인 Quantity은 음수 값을 가질 수 없으므로, 0보다 작은 값 제거
+- 군집분석에 사용할 변수 선택
+ - Quantity, UnitPrice, Country 4가지 변수 활용
+ - InvoiceNo, StockCode, Description, CustomerID는 ID로 적합하지 않음
 
-```{r}
+``` {r}
+table(db_1c$Country)
 db_1d <- db_1c %>%
+  filter(Quantity > 0) %>%
   # 날짜변수 설정
   mutate(InvoiceDate = lubridate::parse_date_time(InvoiceDate, "m/d/y H:M")) %>%
   recipe( ~ .) %>%
   # 역할 부여
   update_role(ID, CustomerID, InvoiceNo, new_role = "ID") %>%
   # 요일 처리
-  step_date(InvoiceDate, features = c("dow")) %>%
+  # step_date(InvoiceDate, features = c("month")) %>%
     # 필요 없는 변수 제거
-  step_dummy(Country, InvoiceDate_dow) %>%
-  step_rm(Description, all_string_predictors(), all_datetime()) %>%
+  step_dummy(Country) %>%
+  step_rm(Description, InvoiceDate, all_string_predictors(), all_datetime()) %>%
   # 수치형 데이터 표준화
   step_normalize(UnitPrice, Quantity) %>%
   prep() %>% juice()
+```
 
+군집분석에 필요한 패키지를 불러오고 군집 개수를 구한다. 실루엣 계수로 최적의 개수는 9개지만, 너무 많은 군집 수는 분석 결과 도출에 방해가 될 수 있다고 생각해, **군집 개수를 3개**로 진행한다.
 
+``` {r}
+pacman::p_load(factoextra)
+
+db_1f <- db_1d %>%
+  select(-c(InvoiceNo, StockCode, ID, CustomerID))
+```
+
+``` {r, eval = FALSE}
+## kmeans 알고리즘에 적용할 군집 개수 구하기
+plot_find_k <- fviz_nbclust(db_1f, kmeans)
+```
+
+![](test/26/plot_1-3.png)
+
+# 2번
+## 2-1번
+> 1번에서 생성한 군집 특성을 분석하라.
+
+3개 군집의 평균 특성 정보는 다음과 같다:
+
+- 군집 1은 단가가 비싼 제품을 적게 사는 구매자로, EIRE 비율이 높음
+- 군집 2는 중간 단가의 제품을 많이 사는 구매자로, France 비율이 높음
+- 군집 3은 단가가 싼 제품을 적정량 구매하고 Netherlands 비율이 낮음
+
+``` {r}
+km <- kmeans(db_1f, 3)
+km$centers
+
+```
+
+## 2-2번
+> 각 군집별로 대표 추천 상품을 도출하라.
+
+각 군집별로 가장 많이 팔린 제품 상위 3개는 다음과 같다.
+
+``` {r}
+data.table(cbind(db_1d, cluster = km$cluster))[
+  , .N, .(cluster, StockCode)][order(cluster, -N)][
+    , .(toString(.SD[1:3]$StockCode)), .(cluster)]
   
 ```
 
-군집분석에 필요한 패키지를 불러온다.
+## 2-3번
+> CustomerID가 12413인 고객을 대상으로 상품을 추천하라.
 
-```         
-pacman::p_load(factoextra, dbscan, Rtsne)
+CustomerID가 12413인 고객의 거래가 어떤 군집에 속하는 지를 파악하니, 군집 1은 12건, 군집 2는 1건, 군집 3은 18건으로 군집 3의 거래건이 많은 것으로 판단된다.
 
-factoextra::fviz_nbclust(db_1d %>% select(-c(InvoiceNo, StockCode, ID, CustomerID)), dbscan)
-dbscan(db_1d %>% select(-c(InvoiceNo, StockCode, ID, CustomerID)), eps = 10, minPts = 5)
-
-tsne_result <- Rtsne(db_1d %>% select(-c(InvoiceNo, StockCode, ID, CustomerID)), dims = 2)
-tsne_data <- data.frame(tsne_result$Y)
-colnames(tsne_data) <- c("Dimension1", "Dimension2")
-
+``` {r}
+db_1f <- data.table(cbind(db_1d, cluster = km$cluster))[CustomerID %in% 12413][
+  , .N, cluster][order(-N)]
 ```
+
+군집 3에 속한 고객이 주로 거래한 물품 중, CustomerId가 12413이 산 물품이 아닌 경우를 추천하면 된다. 군집 3에 속한 사람들이 평균 구매 횟수가 높은 순으로 21790, 22460, 22697 등을 추천할 수 있다.
+
+``` {r}
+tb_freq <- data.table(
+  cbind(db_1d, cluster = km$cluster))[cluster == 3][, .(N = .N / uniqueN(CustomerID)), StockCode][order(-N)]
+
+tb_custm <- data.table(
+  cbind(db_1d, cluster = km$cluster))[CustomerID %in% 12413][, .N, StockCode][order(-N)]
+
+tb_candi <- tb_freq[tb_custm, on = "StockCode", N_custm := N]
+
+tb_candi %>% head(10) %>% kable()
+```
+
 
 # 3번
 
@@ -163,13 +218,13 @@ print(sample_size)
 
 # 4번
 
-> 다음은 1월부터 9월까지의 은의 가격이다
-![](test/26/problem4.png)
+> 다음은 1월부터 9월까지의 은의 가격이다 ![](test/26/problem4.png)
 
 ## 4-1번
+
 > 은의 가격 및 이동평균값이 3으로 설정된 시계열 그래프를 그려라.
 
-``` {r}
+```{r}
 db_4a <- tibble(
   month = c(paste0(c(1:9), "월")),
   usd =  c(41.1, 46.0, 43.2, 55.1, 31.4, 52.0, 60.1, 44.9, 55.1))
@@ -190,9 +245,10 @@ db_4b %>% pivot_longer(cols = starts_with("usd")) %>%
 ```
 
 ## 4-2번
+
 > 1월 대비 9월의 은 가격은 얼마나 올랐는가?
 
-``` {r}
+```{r}
 db_4b_jan <- filter(db_4a, month == "1월")
 db_4b_sep <- filter(db_4a, month == "9월")
 
@@ -200,9 +256,10 @@ round(((db_4b_sep$usd - db_4b_jan$usd) / db_4b_jan$usd ) * 100, 2)
 ```
 
 # 5번
+
 > A, B, C 선거거구별 W 의원에 대한 찬성, 반대 지지를 나타낸다. 자치구별 지지율이 같은지에 대해서 검정하라.
 
-``` {r}
+```{r}
 db_5a <- tibble(
   구분 = c("지지 한다", "지지 안한다"),
   선거구_A = c(176, 124),
@@ -213,18 +270,21 @@ db_5a <- tibble(
 ```
 
 ## 5-1번
+
 > 연구가설과 귀무가설을 설정하라.
 
 가설은 다음과 같다:
 
-- 귀무가설: 세 선거구의 W 의원에 대한 지지율은 같다.
-- 연구가설: 적어도 하나의 선거구에서 W 의원에 대한 지지율은 다르다.
+-   귀무가설: 세 선거구의 W 의원에 대한 지지율은 같다.
+-   연구가설: 적어도 하나의 선거구에서 W 의원에 대한 지지율은 다르다.
 
-## 5-2번 
+## 5-2번
+
 > 소수점 2자리 반올림하여 통계량을 구하고 95% 수준에서 연구가설 채택여부를 결정하라.
 
 가설을 검정하기 위한 방법으로는 카이제곱 검정을 활용한다.
-``` {r}
+
+```{r}
 db_5b <- chisq.test(db_5a[-1])
 cat("검정통계량:", round(db_5b$statistic, 2))
 cat("유의수준: ", (round(db_5b$p.value, 2)))
@@ -233,22 +293,25 @@ cat("유의수준: ", (round(db_5b$p.value, 2)))
 분석의 유의 수준은 0.02로 95% 수준인 0.05보다 작아 귀무가설을 기각하게 된다. 따라서, 적어도 하나의 선거구에서 W 의원에 대한 지지율이 다르다는 연구 가설을 수용하게 된다.
 
 # 6번
+
 > A초등학교 남학생 16명과 여학생 9명의 혈압을 측정한 problem4.csv 파일을 가지고 남녀학생의 평균 혈압에 차이가 없는지 분석하라. 단, 남학생과 여학생의 혈압 데이터는 정규분포를 따르며 등분산임을 가정한다.
 
 # 6-1번
+
 > 연구가설과 귀무가설을 설정하라.
 
 가설은 다음과 같다:
 
-- 귀무가설: 남학생과 여학생 집단의 평균 혈압은 같다.
-- 귀무가설: 남학생의 평균 혈압과 여학생의 평균 혈압은 다르다.
+-   귀무가설: 남학생과 여학생 집단의 평균 혈압은 같다.
+-   귀무가설: 남학생의 평균 혈압과 여학생의 평균 혈압은 다르다.
 
 # 6-2번
+
 > 통게량을 구하고 연구가설 채택 여부를 기술하라.
 
 남성과 여성, 두 집단 간의 평균 차이가 있는 지는 t-test를 통해 검정할 수 있다.
 
-``` {r}
+```{r}
 db_6a <- fread("test/26/problem4.csv")
 
 t.test(db_6a[gender %in% "male"]$pressure, db_6a[!(gender %in% "male")]$pressure, var.equal = TRUE)
@@ -257,12 +320,23 @@ t.test(db_6a[gender %in% "male"]$pressure, db_6a[!(gender %in% "male")]$pressure
 일반적인 유의수준 95% 수준에서 볼 때, 해당 검정 결과의 p-value는 0.1236으로 0.05보다 작지 않아, 귀무가설을 채택하므로 남성과 여성 간 평균 혈압 차이는 없으며 연구가설을 채택하지 못한다.
 
 # 6-3번
+
 > 신뢰구간을 통해서 6-2를 뒷받침하라.
 
-``` {r}
+```{r}
 cat(t.test(db_6a[gender %in% "male"]$pressure, db_6a[!(gender %in% "male")]$pressure, var.equal = TRUE)$conf.int)
 ```
 
 신뢰구간이 0을 포함해, 해당 추정값의 차이가 통계적으로 유의하지 않다. 즉, 남학생과 여학생의 평균 혈압에 대한 차이가 통계적으로 유의미하지 않다는 결론을 내릴 수 있다.
 
 # 7번
+
+
+data <- data.frame(
+  height = c(174.396, 179.656, 175.079, 180.804, 177.448),
+  weight = c(72.102, 81.255, 76.207, 81.354, 78.768),
+  waistline = c(79.3787, 80.6649, 80.3166, 80.8794, 80.3499)
+)
+
+
+
