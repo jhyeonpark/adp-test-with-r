@@ -3,9 +3,9 @@ project:
   output-dir: docs
 
 book:
-  title: "R을 활용한 데이터 분석 전문가(ADP) 준비하기"
-  author: "박주현"
+  title: "데이터 분석 전문가(ADP) 가이드"
   date: "2023. 5. 18."
+  search: true
   site-url: https://juhyeonpark.com/adp-test-with-r/
   repo-url: https://github.com/jhyeonpark/adp-test-with-r/
   chapters:
@@ -13,12 +13,12 @@ book:
     - intro.qmd
     - part: section_previous_tests.qmd
       chapters:
+      - test_26.qmd
       - test_27.qmd
     - summary.qmd
     - references.qmd
   
 toc-depth: 1
-
 bibliography: references.bib
 
 format:

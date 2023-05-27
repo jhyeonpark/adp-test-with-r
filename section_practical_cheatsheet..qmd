@@ -1,0 +1,10 @@
+# ADP 실기시험: R 참고자료
+
+
+
+# 검정통계
+
+## 차이 검정
+
+![Decision tree to identify inferential statistics for measuring a difference [(source)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184?inline=1)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184/8788)
+
