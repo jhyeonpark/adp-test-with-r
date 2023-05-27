@@ -1,0 +1,177 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "데이터 분석 전문가(ADP) 가이드",
+    "section": "",
+    "text": "Preface\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\nkmeans_spec &lt;- linear_reg()\nshow_engines(\"linear_reg\")\n\n# A tibble: 7 × 2\n  engine mode      \n  &lt;chr&gt;  &lt;chr&gt;     \n1 lm     regression\n2 glm    regression\n3 glmnet regression\n4 stan   regression\n5 spark  regression\n6 keras  regression\n7 brulee regression\n\n\n\n1.0.0.1 모델 평가\n\nyardstick::metric_set()\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  },
+  {
+    "objectID": "section_previous_tests.html",
+    "href": "section_previous_tests.html",
+    "title": "ADP 실기시험: 기출문제 풀이",
+    "section": "",
+    "text": "R를 활용해 ADP 실기시험 기출문제를 다룸"
+  },
+  {
+    "objectID": "test_26.html",
+    "href": "test_26.html",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "",
+    "text": "3 1번\n이 문제는 표본조사를 실시할 때, 불량에 관한 모평균이 90% 신뢰구간에서 추정오차한계가 5% 이내가 되도록하는 최소 표본 크기를 구하는 것이다.\n먼저 표준오차(SE)는 표본 평균의 표준 편차로, 모집단의 표준 편차를 표본 크기 제곱(n)으로 나눈 것이다. \\[SE = \\frac{{\\sigma}}{{\\sqrt{n}}}\\] 여기서 우리는 표준오차(SE)는 모른다. 하지만 단서는 표준오차가 90% 이내 신뢰구간에 속해야 한다. 이를 표준 정규 분포, Z 점수로 표현하면 다음과 같다. \\[Z = \\frac{{E}}{{SE}}\\]\n두 식을 결합하면 다음과 같다.\\[E = Z \\cdot SE = Z \\cdot \\frac{{\\sigma}}{{\\sqrt{n}}}\\]\n여기서 N을 구하는 식으로 바꾸면 다음과 같다. \\[n = \\frac{{Z^2 \\cdot p \\cdot (1-p)}}{{E^2}}\\]\n위 공식을 R을 대입해 쓰면 다음과 같다.\n# 변수 정의\nconfidence_level &lt;- 0.90\nmargin_of_error &lt;- 0.05\nz_score &lt;- qnorm((confidence_level + 1) / 2)  # 90% 신뢰수준에 대한 Z 점수 계산\n\nanticipated_proportion &lt;- 0.5  # 불량률 가정\n\n# 표본 크기 계산\nsample_size &lt;- (z_score^2 * anticipated_proportion * (1 - anticipated_proportion)) / margin_of_error^2\nsample_size &lt;- ceiling(sample_size)  # 실제 조사에선 표본 크기를 정수로 취해야 함\n\nprint(sample_size)\n\n[1] 271\ndb_5a &lt;- tibble(\n  구분 = c(\"지지 한다\", \"지지 안한다\"),\n  선거구_A = c(176, 124),\n  선거구_B = c(193, 107),\n  선거구_C = c(159, 141)\n)\n가설은 다음과 같다:\n남성과 여성, 두 집단 간의 평균 차이가 있는 지는 t-test를 통해 검정할 수 있다.\ndb_6a &lt;- fread(\"test/26/problem4.csv\")\n\nt.test(db_6a[gender %in% \"male\"]$pressure, db_6a[!(gender %in% \"male\")]$pressure, var.equal = TRUE)\n\n\n    Two Sample t-test\n\ndata:  db_6a[gender %in% \"male\"]$pressure and db_6a[!(gender %in% \"male\")]$pressure\nt = 1.5983, df = 23, p-value = 0.1236\nalternative hypothesis: true difference in means is not equal to 0\n95 percent confidence interval:\n -1.856072 14.471350\nsample estimates:\nmean of x mean of y \n 96.21875  89.91111\n일반적인 유의수준 95% 수준에서 볼 때, 해당 검정 결과의 p-value는 0.1236으로 0.05보다 작지 않아, 귀무가설을 채택하므로 남성과 여성 간 평균 혈압 차이는 없으며 연구가설을 채택하지 못한다.\ncat(t.test(db_6a[gender %in% \"male\"]$pressure, db_6a[!(gender %in% \"male\")]$pressure, var.equal = TRUE)$conf.int)\n\n-1.856072 14.47135\n신뢰구간이 0을 포함해, 해당 추정값의 차이가 통계적으로 유의하지 않다. 즉, 남학생과 여학생의 평균 혈압에 대한 차이가 통계적으로 유의미하지 않다는 결론을 내릴 수 있다.\ndata &lt;- data.frame( height = c(174.396, 179.656, 175.079, 180.804, 177.448), weight = c(72.102, 81.255, 76.207, 81.354, 78.768), waistline = c(79.3787, 80.6649, 80.3166, 80.8794, 80.3499) )"
+  },
+  {
+    "objectID": "test_26.html#번-1",
+    "href": "test_26.html#번-1",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "3.1 1-1번",
+    "text": "3.1 1-1번\n\n결측치를 확인하고 제거하라\n\n필요한 패키지 및 데이터를 불러온다.\n\npacman::p_load(tidyverse, tidymodels, data.table, gt, knitr,\n               skimr, ggcorrplot, themis, solitude)\n\ndb_1a &lt;- fread(\"test/26/problem1.csv\") \n\nskim 함수로 데이터를 먼저 파악한다.\n\ndb_1a %&gt;% skimr::skim()\n\n\nData summary\n\n\nName\nPiped data\n\n\nNumber of rows\n35801\n\n\nNumber of columns\n8\n\n\nKey\nNULL\n\n\n_______________________\n\n\n\nColumn type frequency:\n\n\n\ncharacter\n5\n\n\nnumeric\n3\n\n\n________________________\n\n\n\nGroup variables\nNone\n\n\n\nVariable type: character\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmin\nmax\nempty\nn_unique\nwhitespace\n\n\n\n\nInvoiceNo\n0\n1\n6\n7\n0\n1846\n0\n\n\nStockCode\n0\n1\n1\n7\n0\n2668\n0\n\n\nDescription\n0\n1\n6\n36\n0\n2759\n0\n\n\nInvoiceDate\n0\n1\n13\n16\n0\n1827\n0\n\n\nCountry\n0\n1\n4\n11\n0\n8\n0\n\n\n\nVariable type: numeric\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmean\nsd\np0\np25\np50\np75\np100\nhist\n\n\n\n\nQuantity\n25\n1\n18.43\n42.16\n-480\n4.00\n10.00\n16.00\n2400.00\n▇▁▁▁▁\n\n\nUnitPrice\n97\n1\n4.61\n48.08\n0\n1.25\n1.95\n3.75\n4161.06\n▇▁▁▁▁\n\n\nCustomerID\n0\n1\n13221.82\n1012.18\n12354\n12523.00\n12681.00\n14156.00\n17097.00\n▇▁▂▁▁\n\n\n\n\n\n데이터는 8개 열과 35,801개 관측치로 구성된다. 8개 열 중 5개는 문자, 3개는 수치형 데이터며, 수치형 데이터에서 결측치가 존재한다. Quantity와 UnitPrice 각각 25개, 97개 결측치를 제거한다.\n\ndb_1b &lt;- db_1a %&gt;%\n  filter(!(is.na(Quantity) | is.na(UnitPrice)))\n\n결측치가 제거된 결과를 확인한다.\n\ndb_1b %&gt;% complete_rate()\n\n[1] 1"
+  },
+  {
+    "objectID": "test_26.html#번-2",
+    "href": "test_26.html#번-2",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "3.2 1-2번",
+    "text": "3.2 1-2번\n\n이상치를 제거하는 방법을 설명하고, 이상치를 제거한 후 결과를 통계적으로 나타내라.\n\n이상치는 다음 방법으로 제거할 수 있다:\n\n3시그마 원칙: 평균에서 표준편차의 3배 이상 떨어진 값을 제거\n상자그림: Box Plot에서 상자 위 아래 연장되는 선인 수염을 벗어나는 값 제거; 1.5 * IQR (사분위수 범위)\n\n데이터 분포를 파악하기 위해 먼저 상자그림으로 시각화를 한다. 수치형 중, CustomerID는 개별 소비자의 고유 번호로 제외하고 나머지 두 수치형 데이터를 기준으로 만든다.\n\ndb_1b %&gt;% select(Quantity, UnitPrice) %&gt;%\n  pivot_longer(cols = everything()) %&gt;% # 모든 변수 long 변환\n  ggplot(aes(x = name, y = value)) +\n  geom_boxplot() + facet_wrap(name ~ ., scales = \"free\") +\n  theme_bw()\n\n\n\n\n두 변수의 Box Plot에서 수염을 벗어난 이상치가 보여 이를 제거 한다.\n\n# 이상치 ID 리스트\ndb_1b &lt;- db_1b %&gt;%\n  mutate(ID = as.factor(row_number()))  # 고유 ID 부여\n\nlist_id_outlier &lt;- db_1b %&gt;%\n  select(ID, Quantity, UnitPrice) %&gt;%\n  pivot_longer(cols = c(Quantity, UnitPrice)) %&gt;% \n  group_by(name) %&gt;%\n  mutate(IQR = quantile(value, 0.75) - quantile(value, 0.25), # 상자 길이\n         bound_lower = quantile(value, 0.25) - (IQR * 1.5),\n         bound_upper = quantile(value, 0.75) + (IQR * 1.5)) %&gt;%\n  ungroup() %&gt;%\n  filter(!between(value, bound_lower, bound_upper)) %&gt;%\n  select(ID) %&gt;% pull()\n  \ndb_1c &lt;- db_1b %&gt;%\n  filter(!(ID %in% list_id_outlier)) \n\n이상치 제거한 결과를 비교한다.\n\ndb_1b %&gt;% select(ID, Quantity, UnitPrice) %&gt;% skim() %&gt;%\n  filter(skim_type %in% c(\"numeric\")) \n\n\nData summary\n\n\nName\nPiped data\n\n\nNumber of rows\n35679\n\n\nNumber of columns\n3\n\n\nKey\nNULL\n\n\n_______________________\n\n\n\nColumn type frequency:\n\n\n\nnumeric\n2\n\n\n________________________\n\n\n\nGroup variables\nNone\n\n\n\nVariable type: numeric\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmean\nsd\np0\np25\np50\np75\np100\nhist\n\n\n\n\nQuantity\n0\n1\n18.44\n42.2\n-480\n4.00\n10.00\n16.00\n2400.00\n▇▁▁▁▁\n\n\nUnitPrice\n0\n1\n4.61\n48.1\n0\n1.25\n1.95\n3.75\n4161.06\n▇▁▁▁▁\n\n\n\n\ndb_1c %&gt;% select(ID, Quantity, UnitPrice) %&gt;% skim() %&gt;%\n  filter(skim_type %in% c(\"numeric\")) \n\n\nData summary\n\n\nName\nPiped data\n\n\nNumber of rows\n27657\n\n\nNumber of columns\n3\n\n\nKey\nNULL\n\n\n_______________________\n\n\n\nColumn type frequency:\n\n\n\nnumeric\n2\n\n\n________________________\n\n\n\nGroup variables\nNone\n\n\n\nVariable type: numeric\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmean\nsd\np0\np25\np50\np75\np100\nhist\n\n\n\n\nQuantity\n0\n1\n10.68\n7.11\n-14\n6.00\n10.00\n12.00\n34.0\n▁▃▇▂▁\n\n\nUnitPrice\n0\n1\n2.19\n1.51\n0\n1.25\n1.65\n2.95\n7.5\n▇▇▂▂▁\n\n\n\n\n\n총 35,679개 관측치 중 27,657개 관측치만이 남았으며, Quantity와 UnitPrice의 극단적인 데이터도 사라졌다. 예를 들어, 전처리 전 데이터의 quantity의 최대값은 2400이지만 이상치 제거 후는 34며, 히스토그램도 극단적이지 않은 정규분포에 가까운 것으로 보인다."
+  },
+  {
+    "objectID": "test_26.html#번-3",
+    "href": "test_26.html#번-3",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "3.3 1-3번",
+    "text": "3.3 1-3번\n\n전처리한 데이터로 Kmeans, DBSCANE 등 방법으로 군집을 생성\n\n전처리 과정을 진행한다.\n\n추가 전처리 수행\n수량인 Quantity은 음수 값을 가질 수 없으므로, 0보다 작은 값 제거\n군집분석에 사용할 변수 선택\nQuantity, UnitPrice, Country 4가지 변수 활용\nInvoiceNo, StockCode, Description, CustomerID는 ID로 적합하지 않음\n\n\ntable(db_1c$Country)\n\n\n    Belgium        EIRE      France     Germany Netherlands    Portugal \n       1688        5623        7013        7849         640        1299 \n      Spain Switzerland \n       2070        1475 \n\ndb_1d &lt;- db_1c %&gt;%\n  filter(Quantity &gt; 0) %&gt;%\n  # 날짜변수 설정\n  mutate(InvoiceDate = lubridate::parse_date_time(InvoiceDate, \"m/d/y H:M\")) %&gt;%\n  recipe( ~ .) %&gt;%\n  # 역할 부여\n  update_role(ID, CustomerID, InvoiceNo, new_role = \"ID\") %&gt;%\n  # 요일 처리\n  # step_date(InvoiceDate, features = c(\"month\")) %&gt;%\n    # 필요 없는 변수 제거\n  step_dummy(Country) %&gt;%\n  step_rm(Description, InvoiceDate, all_string_predictors(), all_datetime()) %&gt;%\n  # 수치형 데이터 표준화\n  step_normalize(UnitPrice, Quantity) %&gt;%\n  prep() %&gt;% juice()\n\n군집분석에 필요한 패키지를 불러오고 군집 개수를 구한다. 실루엣 계수로 최적의 개수는 9개지만, 너무 많은 군집 수는 분석 결과 도출에 방해가 될 수 있다고 생각해, 군집 개수를 3개로 진행한다.\n\npacman::p_load(factoextra)\n\ndb_1f &lt;- db_1d %&gt;%\n  select(-c(InvoiceNo, StockCode, ID, CustomerID))\n\n\n## kmeans 알고리즘에 적용할 군집 개수 구하기\nplot_find_k &lt;- fviz_nbclust(db_1f, kmeans)"
+  },
+  {
+    "objectID": "test_26.html#번-5",
+    "href": "test_26.html#번-5",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "4.1 2-1번",
+    "text": "4.1 2-1번\n\n1번에서 생성한 군집 특성을 분석하라.\n\n3개 군집의 평균 특성 정보는 다음과 같다:\n\n군집 1은 단가가 비싼 제품을 적게 사는 구매자로, EIRE 비율이 높음\n군집 2는 중간 단가의 제품을 많이 사는 구매자로, France 비율이 높음\n군집 3은 단가가 싼 제품을 적정량 구매하고 Netherlands 비율이 낮음\n\n\nkm &lt;- kmeans(db_1f, 3)\nkm$centers\n\n    Quantity  UnitPrice Country_EIRE Country_France Country_Germany\n1 -0.1517417 -0.4490393    0.1779445      0.2770334       0.2891599\n2  1.8662197 -0.7177269    0.1950424      0.2533159       0.2828876\n3 -0.8472372  1.3414492    0.2566716      0.2183184       0.2527826\n  Country_Netherlands Country_Portugal Country_Spain Country_Switzerland\n1          0.01989816       0.05105186    0.07483586          0.04696503\n2          0.04022614       0.04587954    0.05783866          0.07675582\n3          0.02105404       0.04224219    0.08958026          0.05310447"
+  },
+  {
+    "objectID": "test_26.html#번-6",
+    "href": "test_26.html#번-6",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "4.2 2-2번",
+    "text": "4.2 2-2번\n\n각 군집별로 대표 추천 상품을 도출하라.\n\n각 군집별로 가장 많이 팔린 제품 상위 3개는 다음과 같다.\n\ndata.table(cbind(db_1d, cluster = km$cluster))[\n  , .N, .(cluster, StockCode)][order(cluster, -N)][\n    , .(toString(.SD[1:3]$StockCode)), .(cluster)]\n\n   cluster                  V1\n1:       1 22554, 22556, 22629\n2:       2 21212, 21121, 23307\n3:       3 22326, 22328, 23245"
+  },
+  {
+    "objectID": "test_26.html#번-7",
+    "href": "test_26.html#번-7",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "4.3 2-3번",
+    "text": "4.3 2-3번\n\nCustomerID가 12413인 고객을 대상으로 상품을 추천하라.\n\nCustomerID가 12413인 고객의 거래가 어떤 군집에 속하는 지를 파악하니, 군집 1은 12건, 군집 2는 1건, 군집 3은 18건으로 군집 3의 거래건이 많은 것으로 판단된다.\n\ndb_1f &lt;- data.table(cbind(db_1d, cluster = km$cluster))[CustomerID %in% 12413][\n  , .N, cluster][order(-N)]\n\n군집 3에 속한 고객이 주로 거래한 물품 중, CustomerId가 12413이 산 물품이 아닌 경우를 추천하면 된다. 군집 3에 속한 사람들이 평균 구매 횟수가 높은 순으로 21790, 22460, 22697 등을 추천할 수 있다.\n\ntb_freq &lt;- data.table(\n  cbind(db_1d, cluster = km$cluster))[cluster == 3][, .(N = .N / uniqueN(CustomerID)), StockCode][order(-N)]\n\ntb_custm &lt;- data.table(\n  cbind(db_1d, cluster = km$cluster))[CustomerID %in% 12413][, .N, StockCode][order(-N)]\n\ntb_candi &lt;- tb_freq[tb_custm, on = \"StockCode\", N_custm := N]\n\ntb_candi %&gt;% head(10) %&gt;% kable()\n\n\n\n\nStockCode\nN\nN_custm\n\n\n\n\n22766\n4.500000\nNA\n\n\n21912\n4.166667\nNA\n\n\n22835\n4.000000\nNA\n\n\n23081\n4.000000\nNA\n\n\n72802B\n4.000000\nNA\n\n\n23099\n4.000000\nNA\n\n\n72802C\n4.000000\nNA\n\n\n21470\n3.666667\nNA\n\n\n85048\n3.500000\nNA\n\n\n23413\n3.500000\nNA"
+  },
+  {
+    "objectID": "test_26.html#번-10",
+    "href": "test_26.html#번-10",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "6.1 4-1번",
+    "text": "6.1 4-1번\n\n은의 가격 및 이동평균값이 3으로 설정된 시계열 그래프를 그려라.\n\n\ndb_4a &lt;- tibble(\n  month = c(paste0(c(1:9), \"월\")),\n  usd =  c(41.1, 46.0, 43.2, 55.1, 31.4, 52.0, 60.1, 44.9, 55.1))\n\ndb_4b &lt;- recipe(month ~ ., data = db_4a) %&gt;%\n  step_mutate(usd_window3 = usd) %&gt;%\n  step_window(usd_window3, size = 3) %&gt;%\n  prep() %&gt;% juice()\n\ndb_4b %&gt;% pivot_longer(cols = starts_with(\"usd\")) %&gt;%\n  mutate(name = factor(name, levels = c(\"usd\", \"usd_window3\"),\n                       labels = c(\"은 가격\", \"은 가격(이동평균값 3 기준)\"))) %&gt;%\n  ggplot(aes(x = month, y = value, color = name, group = name)) +\n  geom_point() + \n  geom_line() + theme_bw() +\n  labs(x = \"\", y = \"USD/oz\", color = \"범례\") +\n  theme(legend.position = \"bottom\")"
+  },
+  {
+    "objectID": "test_26.html#번-11",
+    "href": "test_26.html#번-11",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "6.2 4-2번",
+    "text": "6.2 4-2번\n\n1월 대비 9월의 은 가격은 얼마나 올랐는가?\n\n\ndb_4b_jan &lt;- filter(db_4a, month == \"1월\")\ndb_4b_sep &lt;- filter(db_4a, month == \"9월\")\n\nround(((db_4b_sep$usd - db_4b_jan$usd) / db_4b_jan$usd ) * 100, 2)\n\n[1] 34.06"
+  },
+  {
+    "objectID": "test_26.html#번-13",
+    "href": "test_26.html#번-13",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "7.1 5-1번",
+    "text": "7.1 5-1번\n\n연구가설과 귀무가설을 설정하라.\n\n가설은 다음과 같다:\n\n귀무가설: 세 선거구의 W 의원에 대한 지지율은 같다.\n연구가설: 적어도 하나의 선거구에서 W 의원에 대한 지지율은 다르다."
+  },
+  {
+    "objectID": "test_26.html#번-14",
+    "href": "test_26.html#번-14",
+    "title": "2  제26회 ADP 실기 문제 풀이",
+    "section": "7.2 5-2번",
+    "text": "7.2 5-2번\n\n소수점 2자리 반올림하여 통계량을 구하고 95% 수준에서 연구가설 채택여부를 결정하라.\n\n가설을 검정하기 위한 방법으로는 카이제곱 검정을 활용한다.\n\ndb_5b &lt;- chisq.test(db_5a[-1])\ncat(\"검정통계량:\", round(db_5b$statistic, 2))\n\n검정통계량: 7.95\n\ncat(\"유의수준: \", (round(db_5b$p.value, 2)))\n\n유의수준:  0.02\n\n\n분석의 유의 수준은 0.02로 95% 수준인 0.05보다 작아 귀무가설을 기각하게 된다. 따라서, 적어도 하나의 선거구에서 W 의원에 대한 지지율이 다르다는 연구 가설을 수용하게 된다."
+  },
+  {
+    "objectID": "test_27.html",
+    "href": "test_27.html",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "",
+    "text": "1. 데이터 전처리"
+  },
+  {
+    "objectID": "test_27.html#데이터-탐색eda을-수행하라.",
+    "href": "test_27.html#데이터-탐색eda을-수행하라.",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "1.1. 데이터 탐색(EDA)을 수행하라.",
+    "text": "1.1. 데이터 탐색(EDA)을 수행하라.\n필요한 패지키를 설치하고 불러온다.\n\npacman::p_load(tidyverse, tidymodels, data.table, gt, \n               skimr, ggcorrplot, themis, solitude)\n\n데이터를 불러온다.\n\ndb_1a &lt;- fread(\"test/27/data/problem1.csv\")\n\n탐색적 자료분석(EDA)를 skim으로 수행한다.\n\ndb_1a %&gt;% skim()\n\n\nData summary\n\n\nName\nPiped data\n\n\nNumber of rows\n1193\n\n\nNumber of columns\n20\n\n\nKey\nNULL\n\n\n_______________________\n\n\n\nColumn type frequency:\n\n\n\nnumeric\n20\n\n\n________________________\n\n\n\nGroup variables\nNone\n\n\n\nVariable type: numeric\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmean\nsd\np0\np25\np50\np75\np100\nhist\n\n\n\n\nTime\n0\n1\n91514.49\n47896.08\n60.00\n50265.00\n81797.00\n136995.00\n172676.00\n▃▇▅▅▇\n\n\nV1\n0\n1\n-0.76\n3.62\n-30.55\n-1.30\n-0.30\n1.25\n2.32\n▁▁▁▁▇\n\n\nV2\n0\n1\n0.54\n2.66\n-33.64\n-0.44\n0.23\n1.11\n19.17\n▁▁▁▇▁\n\n\nV3\n0\n1\n-1.15\n3.91\n-31.10\n-1.61\n-0.23\n0.81\n3.32\n▁▁▁▁▇\n\n\nV4\n0\n1\n0.78\n2.35\n-4.29\n-0.61\n0.33\n1.34\n12.11\n▂▇▂▁▁\n\n\nV5\n0\n1\n-0.41\n2.70\n-22.11\n-0.84\n-0.07\n0.68\n15.28\n▁▁▇▅▁\n\n\nV6\n0\n1\n-0.28\n1.51\n-10.89\n-1.02\n-0.38\n0.30\n6.27\n▁▁▆▇▁\n\n\nV7\n0\n1\n-0.85\n3.40\n-37.06\n-0.81\n-0.08\n0.46\n8.12\n▁▁▁▂▇\n\n\nV8\n0\n1\n0.15\n2.47\n-37.35\n-0.22\n0.07\n0.45\n20.01\n▁▁▁▇▁\n\n\nV9\n0\n1\n-0.45\n1.66\n-11.13\n-1.04\n-0.21\n0.45\n5.92\n▁▁▃▇▁\n\n\nV10\n0\n1\n-0.90\n2.90\n-23.23\n-0.88\n-0.23\n0.29\n7.14\n▁▁▁▇▁\n\n\nV11\n0\n1\n0.66\n1.96\n-2.65\n-0.60\n0.28\n1.21\n11.67\n▇▇▁▁▁\n\n\nV12\n0\n1\n-1.01\n3.00\n-17.23\n-0.97\n-0.01\n0.51\n3.11\n▁▁▁▂▇\n\n\nV13\n0\n1\n0.01\n1.01\n-2.80\n-0.69\n0.02\n0.70\n3.07\n▁▅▇▃▁\n\n\nV14\n0\n1\n-1.17\n3.23\n-18.49\n-0.95\n-0.10\n0.42\n3.89\n▁▁▁▂▇\n\n\nV15\n0\n1\n0.02\n0.91\n-4.50\n-0.55\n0.05\n0.66\n2.87\n▁▁▆▇▁\n\n\nV16\n0\n1\n-0.63\n2.27\n-14.13\n-0.70\n-0.06\n0.46\n3.14\n▁▁▁▃▇\n\n\nV17\n0\n1\n-1.07\n3.81\n-25.16\n-0.68\n-0.15\n0.37\n6.74\n▁▁▁▇▃\n\n\nAmount\n0\n1\n88.89\n220.14\n0.00\n3.54\n20.99\n77.49\n3335.73\n▇▁▁▁▁\n\n\nClass\n0\n1\n0.17\n0.37\n0.00\n0.00\n0.00\n0.00\n1.00\n▇▁▁▁▂\n\n\n\n\n\n탐색한 결과는 다음과 같다:\n\n결측치는 존재하지 않음\n데이터는 모두 숫자형(numeric)으로 구성되었으나, Class는 데이터 분포 등으로 미루어보아 요인(factor)로 판단\nClass는 1인 경우가 16.7%로 불균형 라벨로 판단\n\n종속변수와 독립변수 관계를 시각화한다.\n\ndb_1a %&gt;% \n  # id 생성\n  mutate(id = row_number()) %&gt;%\n  # Wide-to-long 변환\n  pivot_longer(cols = !c(id, Class)) %&gt;%\n  ggplot(aes(x = as.factor(Class), y = value)) +\n  geom_boxplot() +\n  facet_wrap(name ~ ., scales = \"free\") +\n  labs(x = \"\", y = \"\") +\n  scale_y_continuous(labels = comma)"
+  },
+  {
+    "objectID": "test_27.html#변수간-상관관계를-시각화하고-전처리가-필요함을-설명하라",
+    "href": "test_27.html#변수간-상관관계를-시각화하고-전처리가-필요함을-설명하라",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "1.2. 변수간 상관관계를 시각화하고 전처리가 필요함을 설명하라",
+    "text": "1.2. 변수간 상관관계를 시각화하고 전처리가 필요함을 설명하라\n상관관계를 시각화한다.\n\ndb_1a %&gt;% select(-c(\"Time\", \"Class\")) %&gt;%\n  cor() %&gt;% ggcorrplot(type = \"lower\", lab = TRUE, lab_size = 2)\n\n\n\n\nV1-V3, V14-V17 등 상관계수가 0.75보다 큰 관계가 보인다. 이를 활용하여 종속변수를 측정하면 다중공선성 문제가 발생하여 정확한 독립변수 관계를 측정하기 어렵다."
+  },
+  {
+    "objectID": "test_27.html#차원축소-방법-2가지-이상을-비교하고-한-가지를-선택하라.",
+    "href": "test_27.html#차원축소-방법-2가지-이상을-비교하고-한-가지를-선택하라.",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "2.1. 차원축소 방법 2가지 이상을 비교하고 한 가지를 선택하라.",
+    "text": "2.1. 차원축소 방법 2가지 이상을 비교하고 한 가지를 선택하라.\n차원축소 방법에는 PCA 주성분분석과, MDS 다차원 척도법, t-SNE가 있다. 주성분 분석은 데이터 분산을 최대한 보존하면서 차원을 축소하여 정보 손실이 적고 계산 비용이 낮다는 장점이 있지만, 선형 관계에 의존하여 비선형 구조가 잘 표현되기 어렵고 이상치에 민감하게 작동한다. 다차원 척도법은 데이터 샘플 거리를 보존하여 축소하는 방법으로 비선형 구조에도 잘 작동하게 거리 정보를 유지하지만, 계산 비용이 높고 데이터 크기에 민감하다. 마지막으로 t-SEN은 비선형 차원 축소로 시각화에 효과적이지만 하이퍼파라미터에 민감할 수 있다.\n여기서는 가장 기본적이면서 데이터 손실을 줄이는 PCA 주성분분석을 활용한다.\nPCA에 필요한 파라미터인 주성분 개수는 아래 scree 그래프로 파악한다.\n\ndb_1b &lt;- db_1a %&gt;% select(-c(\"Time\", \"Class\"))\n\n# PCA를 위한 recipe 생성\nrec &lt;- recipe(~., data = db_1b) %&gt;%\n  step_center(all_predictors()) %&gt;%\n  step_scale(all_predictors()) %&gt;%\n  step_pca(all_predictors())\n\n# recipe 준비 (학습)\nprep_rec &lt;- prep(rec)\n\n# Scree 그래프\nsdev &lt;- prep_rec$steps[[3]]$res$sdev\npercent_variation &lt;- sdev^2 / sum(sdev^2)\ndata.frame(PC=paste0(\"PC\",1:length(sdev)),\n                     var_explained=percent_variation,\n                     stringsAsFactors = FALSE) %&gt;%\n  mutate(PC = fct_inorder(PC)) %&gt;%\n  ggplot(aes(x=PC,y=var_explained))+geom_col()\n\n\n\n\n2개 이상이 되면 주성분이 1개 더 생긴다고 크게 설명되지 않은 분산이 커지지 않는다. 따라서 주성분은 2개로 가정한다.\n2개로 설정한 PCA 결과를 시각화하면 다음과 같다.\n\ndb_1b &lt;- db_1a %&gt;% select(-c(\"Time\", \"Class\"))\n# PCA를 위한 recipe 생성\nrec &lt;- recipe(~., data = db_1b) %&gt;%\n  step_center(all_predictors()) %&gt;%\n  step_scale(all_predictors()) %&gt;%\n  step_pca(all_predictors(), num_comp = 2) # 주성분 2개로 한정\n\nprep_rec &lt;- prep(rec)\n\ntidy_rec &lt;- tidy(prep_rec, number = 3)\n\ntidy_rec %&gt;%\n  filter(component %in% paste0(\"PC\", 1:2)) %&gt;%\n  mutate(component = fct_inorder(component)) %&gt;%\n  ggplot(aes(value, terms, fill = terms)) +\n  geom_col(show.legend = FALSE) +\n  facet_wrap(~component, nrow = 1) +\n  labs(y = NULL, x = NULL) +\n  theme_bw()"
+  },
+  {
+    "objectID": "test_27.html#각-샘플링의-장점과-단점을-설명하고-한-가지를-추천하라.",
+    "href": "test_27.html#각-샘플링의-장점과-단점을-설명하고-한-가지를-추천하라.",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "3.1. 각 샘플링의 장점과 단점을 설명하고 한 가지를 추천하라.",
+    "text": "3.1. 각 샘플링의 장점과 단점을 설명하고 한 가지를 추천하라.\n오버샘플링은 소수 클래스의 샘플 수를 늘려 전체 데이터셋의 균형을 맞추는 방법이다.\n\n장점: 소수 클래스 정보를 모두 활용할 수 있어, 정보 손실이 없음\n단점: 샘플이 과화게 증가하면 모델 과적합 위험\n\n언더샘플링은 다수 클래스의 샘플 수를 줄여서 전체 데이터셋의 균형을 맞추는 방법이다.\n\n장점: 다수 샘플이 과하게 많을 경우, 이를 줄여 모델 과적합 방지\n단점: 샘플 줄이는 과정에서 중요한 정보를 잃을 수 있음\n\n해당 데이터셋에는 오버샘플링을 적용한 것을 추천한다. Class의 소수 클래스의 개수가 20개로, 언더샘플링을 사용할 시 다수 샘플의 정보를 과도하게 잃기 때문이다.\n\ntable(db_1a$Class)\n\n\n  0   1 \n993 200"
+  },
+  {
+    "objectID": "test_27.html#알고리즘-2가지-이상을-비교하고-성능을-측정하라.",
+    "href": "test_27.html#알고리즘-2가지-이상을-비교하고-성능을-측정하라.",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "3.2. 알고리즘 2가지 이상을 비교하고 성능을 측정하라.",
+    "text": "3.2. 알고리즘 2가지 이상을 비교하고 성능을 측정하라.\n두 오버샘플링 알고리즘, 1) SMOTE과 2) upsampling를 사용한다.\n\ndb_1c &lt;- db_1a[, -c(\"Time\")]\n\n# Recipe 만들기\nrec &lt;- recipe(Class ~ ., data = db_1c) %&gt;%\n  step_mutate(Class = as.factor(Class)) %&gt;%\n  step_center(all_predictors(),  -all_outcomes()) %&gt;%\n  step_scale(all_predictors(),  -all_outcomes()) %&gt;%\n  step_pca(all_predictors(),  -all_outcomes(), num_comp = 2) # 주성분 2개로 한정\n\n# 모델 정의\nmodel_spec &lt;- decision_tree() %&gt;%\n  set_engine(\"rpart\") %&gt;%\n  set_mode(\"classification\")\n\n# SMOTE\nrec_smote &lt;- rec %&gt;% step_smote(Class) %&gt;% prep(db_1c) %&gt;% bake(new_data = NULL)\nrec_upsample &lt;- rec %&gt;% step_upsample(Class) %&gt;% prep(db_1c) %&gt;% bake(new_data = NULL)\n\nbind_rows(rec_smote %&gt;% mutate(model = \"smote\"),\n          rec_upsample %&gt;% mutate(model = \"upsample\")) %&gt;%\n  ggplot(aes(x = PC1, y = PC2, color = model)) +\n  geom_point(alpha = 0.8) +\n  theme_bw()\n\n\n\n\n위 그래프에서 보이듯, 단순히 소수 샘플을 늘린 upsample 알고리즘에 비해 SMOTE 알고리즘이 더 다양한 차원 정보를 포함하고 있어 더 좋은 성능을 보인다고 할 수 있다."
+  },
+  {
+    "objectID": "test_27.html#현재까지-전처리한-데이터를-통해-모델-수행-후-결과를-분석",
+    "href": "test_27.html#현재까지-전처리한-데이터를-통해-모델-수행-후-결과를-분석",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "3.3. 현재까지 전처리한 데이터를 통해 모델 수행 후, 결과를 분석",
+    "text": "3.3. 현재까지 전처리한 데이터를 통해 모델 수행 후, 결과를 분석\n\nset.seed(2023)\n\ndb_1c &lt;- db_1a[, -c(\"Time\")]\n\n# Recipe 만들기\nrec &lt;- recipe(Class ~ ., data = db_1c) %&gt;%\n  step_mutate(Class = as.factor(Class)) %&gt;%\n  step_center(all_predictors(),  -all_outcomes()) %&gt;%\n  step_scale(all_predictors(),  -all_outcomes()) %&gt;%\n  step_pca(all_predictors(),  -all_outcomes(), num_comp = 2) # 주성분 2개로 한정\n\n# 모델 정의\nmodel_spec &lt;- decision_tree() %&gt;%\n  set_engine(\"rpart\") %&gt;%\n  set_mode(\"classification\")\n\n# SMOTE\nrec_smote &lt;- rec %&gt;% step_smote(Class) %&gt;% prep(db_1c)\nwk_smote &lt;- workflow() %&gt;% add_recipe(rec_smote) %&gt;% add_model(model_spec)\n\ncv &lt;- vfold_cv(db_1c)\n\nresult_smote &lt;- fit_resamples(\n  wk_smote, \n  resamples = cv, \n  control = control_resamples(save_pred = TRUE))\n\npredictions &lt;- result_smote %&gt;% \n  collect_predictions()\n\ncollect_metrics(result_smote)\n\n# A tibble: 2 × 6\n  .metric  .estimator  mean     n std_err .config             \n  &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n1 accuracy binary     0.960    10 0.00671 Preprocessor1_Model1\n2 roc_auc  binary     0.922    10 0.0185  Preprocessor1_Model1\n\npredictions %&gt;% \n  yardstick::roc_curve(Class, .pred_0) %&gt;% autoplot()\n\n\n\n\n분석 결과, 정확도는 95.9%, AUC는 92.1%로 분류 성능을 보인다."
+  },
+  {
+    "objectID": "test_27.html#이상탐지-모델-2가지-이상을-기술하고-장점과-단점을-설명해라.",
+    "href": "test_27.html#이상탐지-모델-2가지-이상을-기술하고-장점과-단점을-설명해라.",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "3.1 4.1. 이상탐지 모델 2가지 이상을 기술하고 장점과 단점을 설명해라.",
+    "text": "3.1 4.1. 이상탐지 모델 2가지 이상을 기술하고 장점과 단점을 설명해라.\n\nIsolation Forest: 데이터 분포를 가정하지 않고 작동하며, 이상값과 정상값을 분리하는 데 필요한 경로 길이를 기반으로 이상 점수를 계산합니다. 이상값은 일반적으로 더 짧은 경로로 분리될 수 있으므로, 이상 점수가 높을수록 해당 데이터 포인트는 이상값일 가능성이 높음\n\n장점: 대용량 데이터에 효과적이며, 별도의 정규화 과정이 필요 없음\n단점: 어떻게 이상치를 분리했는지 파악이 어려워 데이터 해석이 힘듦\n\nAutoencoder: 비지도 학습의 일종으로, 원본 입력을 재구성하는 방식으로 작동함. 이상 탐지에서는, 정상 데이터를 사용하여 Autoencoder를 훈련시키고, 이를 사용하여 입력 데이터를 재구성, 이상한 데이터는 재구성 오차가 크게 나타남. 이 재구성 오차를 임계값과 비교하여 데이터 포인트가 이상인지 판별함.\n\n장점: 비선형성 패턴을 인코딩하고 특성 선택 과정이 필요 없음\n단점: 네트워크 아키텍처에 의존하므로 복잡함"
+  },
+  {
+    "objectID": "test_27.html#모델-구현하고-3에서-만든-모델과-비교",
+    "href": "test_27.html#모델-구현하고-3에서-만든-모델과-비교",
+    "title": "3  제27회 ADP 실기 문제 풀이",
+    "section": "3.2 4.2. 모델 구현하고 3에서 만든 모델과 비교",
+    "text": "3.2 4.2. 모델 구현하고 3에서 만든 모델과 비교\n\ndb_1c &lt;- db_1a[, -c(\"Time\")]\n\n# Recipe 만들기\nrec &lt;- recipe(Class ~ ., data = db_1c) %&gt;%\n  step_mutate(Class = as.factor(Class)) %&gt;%\n  step_center(all_predictors(),  -all_outcomes()) %&gt;%\n  step_scale(all_predictors(),  -all_outcomes()) %&gt;%\n  step_pca(all_predictors(),  -all_outcomes(), num_comp = 2) # 주성분 2개로 한정\n\n# SMOTE\nrec_smote &lt;- rec %&gt;% step_smote(Class) %&gt;% prep(db_1c)\n\n\n\nwk_smote &lt;- workflow() %&gt;% add_recipe(rec_smote) %&gt;% add_model(model_spec)\n\ndata_preprocessed &lt;- juice(rec_smote)\n\nmodel &lt;- isolationForest$new()\nmodel$fit(data_preprocessed[, -which(names(data_preprocessed) == \"Class\")])\n\nINFO  [17:26:18.544] dataset has duplicated rows\nINFO  [17:26:18.562] Building Isolation Forest ...\nINFO  [17:26:18.608] done\nINFO  [17:26:18.608] Computing depth of terminal nodes ...\nINFO  [17:26:18.824] done\nINFO  [17:26:18.863] Completed growing isolation forest\n\nscores &lt;- model$predict(data_preprocessed[, -which(names(data_preprocessed) == \"Class\")])\ndata_preprocessed$anomaly_score &lt;- scores\n\nquantile(data_preprocessed$anomaly_score$anomaly_score)\n\n       0%       25%       50%       75%      100% \n0.5820092 0.5827973 0.5847722 0.5955529 0.7654805 \n\n# 이상치 점수를 기반으로 이상치 판단\nthreshold &lt;- 0.6\ndata_preprocessed$anomaly &lt;- ifelse(data_preprocessed$anomaly_score &gt; threshold, 1, 0)\n\n# SMOTE 후에 모델 훈련 및 성능 측정\nttt &lt;- as.data.table(data_preprocessed$anomaly)\n\ndata_preprocessed$anomaly &lt;- as.factor(ttt$anomaly_score)\ntable(data_preprocessed$Class, data_preprocessed$anomaly)\n\n   \n      0   1\n  0 929  64\n  1 649 344\n\ntttt &lt;- data_preprocessed %&gt;% \n  conf_mat(truth = Class, estimate = anomaly) \n\n\nclass_metrics &lt;- metric_set(accuracy, sens, spec)\n\ndata_preprocessed |&gt;\n  class_metrics(truth = Class, estimate = anomaly)\n\n# A tibble: 3 × 3\n  .metric  .estimator .estimate\n  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;\n1 accuracy binary         0.641\n2 sens     binary         0.936\n3 spec     binary         0.346"
+  },
+  {
+    "objectID": "summary.html",
+    "href": "summary.html",
+    "title": "4  Summary",
+    "section": "",
+    "text": "In summary, this book has no content whatsoever.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "References",
+    "section": "",
+    "text": "Knuth, Donald E. 1984. “Literate Programming.” Comput.\nJ. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+  }
+]
