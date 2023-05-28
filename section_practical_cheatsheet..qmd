@@ -8,3 +8,14 @@
 
 ![Decision tree to identify inferential statistics for measuring a difference [(source)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184?inline=1)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184/8788)
 
+
+
+
+
+
+
+# 시계열 분석 
+
+참고할 블로그 리스트 
+
+- https://rstatistics.tistory.com/74
