@@ -93,16 +93,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>F(소비자별 구매빈도), M(소비자별 총 구매액) feature를 새로 생성해서 그 결과값으로 탐색적 분석 실시하라.</p>
 </blockquote>
-<p>FF(소비자별 구매빈도)와 MM(소비자별 총 구매액) 변수를 생성하고 탐색적 분석을 실시한다.</p>
+<p>FF(소비자별 구매빈도)와 MM(소비자별 총 구매액) 변수를 생성하고 탐색적 분석을 실시한다. 현데이터는 1개 거래 건수가 하나의 관측치지만, 소비자별 구매빈도와 총 구매액의 특성 분석에는 1명 소비자가 분석 단위가 되므로 이를 전처리 단계에서 적용한다.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>db_1a <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"test/25/problem1.csv"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(CustomerID) <span class="sc">%&gt;%</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FF =</span> <span class="fu">n</span>(), <span class="at">MM =</span> <span class="fu">sum</span>(Quantity <span class="sc">*</span> UnitPrice)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>db_1a <span class="sc">%&gt;%</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(FF, MM) <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FF =</span> <span class="fu">n</span>(), <span class="co"># 소비자별 거래 개수(구매빈도)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">MM =</span> <span class="fu">sum</span>(Quantity <span class="sc">*</span> UnitPrice) <span class="co"># 소비자별 총 구매액</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unique</span>(<span class="at">by =</span> <span class="st">"CustomerID"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>db_1a <span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(FF, MM) <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -113,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">Number of rows</td>
-<td style="text-align: left;">41024</td>
+<td style="text-align: left;">40956</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Number of columns</td>
@@ -176,8 +179,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">FF</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1179.35</td>
-<td style="text-align: right;">1994.43</td>
+<td style="text-align: right;">1180.06</td>
+<td style="text-align: right;">1995.09</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">107.00</td>
 <td style="text-align: right;">264.00</td>
@@ -189,8 +192,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">MM</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">43264.53</td>
-<td style="text-align: right;">73454.86</td>
+<td style="text-align: right;">43300.99</td>
+<td style="text-align: right;">73489.97</td>
 <td style="text-align: right;">-1126</td>
 <td style="text-align: right;">2283.63</td>
 <td style="text-align: right;">5154.58</td>
@@ -202,7 +205,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
-<p>두 변수 모두 결측치는 존재하지 않지만, 구매액이 음수인 경우가 존재해 이는 이상치로 간주하고 제거한다.</p>
+<p>두 변수 모두 결측치는 존재하지 않지만 구매액(MM)이 음수인 경우는 존재할 수 없으므로 이를 먼저 제거한다.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>db_1b <span class="ot">&lt;-</span> db_1a <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MM <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -214,10 +217,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>F, M feature 기반으로 군집분석 실시, 필요시 이상값 보정하라.</p>
 </blockquote>
 <p>대표적인 k-means 클러스터링으로 군집분석을 실시한다. 먼저 현 데이터로 최적의 군집 개수를 구해보고, 군집분석 후 시각화해본다.</p>
-<p><img src="test/25/plot_1.png" class="img-fluid"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_nbclust</span>(db_1b <span class="sc">%&gt;%</span> <span class="fu">select</span>(FF, MM), kmeans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><img src="test/25/plot_1.png" class="img-fluid"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit_1a <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(db_1b <span class="sc">%&gt;%</span> <span class="fu">select</span>(FF, MM), <span class="dv">2</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_cluster</span>(fit_1a, db_1b <span class="sc">%&gt;%</span> <span class="fu">select</span>(FF, MM))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
