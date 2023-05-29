@@ -1,1 +1,0 @@
-Sitemap: https://juhyeonpark.com/adp-test-with-r/sitemap.xml
