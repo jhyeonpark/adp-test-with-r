@@ -1,0 +1,42 @@
+# 참고자료 {.unnumbered}
+
+# 기계학습
+
+기계학습 문제는 R의 `tidymodels`를 활용하여 푼다. 이 패키지는 머신러닝 모델을 개발하기 위한 전처리나 모델링, 튜닝, 평가 등 일련의 패키지와 도구 모음이다. 
+
+![https://statkclee.github.io/model/tidyverse-parsnip-penguin-101.html](test/cheetsheet/tidymodels_overview.png)
+
+각 패키지가 어떤 역할을 하는 지를 먼저 숙지하고 모르는 부분이 나오면 그 패키지의 함수를 읽어가며 공부한다.
+![](image/ex_rsample.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 검정통계
+
+## 차이 검정
+
+![Decision tree to identify inferential statistics for measuring a difference [(source)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184?inline=1)](https://www.cjhp-online.ca/index.php/cjhp/article/download/1471/2184/8788)
+
+
+
+
+
+참고할 블로그 리스트
+
+-   https://rstatistics.tistory.com/74

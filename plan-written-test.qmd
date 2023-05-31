@@ -1,4 +1,4 @@
-# Introduction
+# 준비과정과 전략 {.unnumbered}
 
 This is a book created from markdown and executable code.
 
@@ -15,10 +15,8 @@ show_engines("linear_reg")
 
 ```
 
-
 #### 모델 평가
-``` {r, eval = FALSE}
+
+```{r, eval = FALSE}
 yardstick::metric_set()
 ```
-
-

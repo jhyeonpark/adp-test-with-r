@@ -10,13 +10,18 @@ book:
   repo-url: https://github.com/jhyeonpark/adp-test-with-r/
   chapters:
     - index.qmd
-    - intro.qmd
-    - part: section_previous_tests.qmd
+    - part: section-written-test.qmd
       chapters:
-      - test_26.qmd
+      - plan-written-test.qmd
+    - part: section-practical-test.qmd
+      chapters:
+      - plan-practical-test.qmd
+      - r-reference.qmd
       - test_27.qmd
-    - summary.qmd
-    - references.qmd
+      - test_26.qmd
+      - test_25.qmd
+      - test_24.qmd
+      - test_23.qmd
   
 toc-depth: 1
 bibliography: references.bib
