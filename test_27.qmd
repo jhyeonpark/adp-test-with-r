@@ -1,9 +1,11 @@
 # 기출문제(27회) {.unnumbered}
 
 # 1번 {.unnumbered}
-> 데이터 전처리 
+
+> 데이터 전처리
 
 ## 1.1번 {.unnumbered}
+
 > 데이터 탐색(EDA)을 수행하라.
 
 필요한 패지키를 설치하고 불러온다.
@@ -19,7 +21,6 @@ pacman::p_load(tidyverse, tidymodels, data.table, gt,
 db_1a <- fread("test/27/data/problem1.csv")
 db_1a %>% skim()
 ```
-
 
 탐색한 결과는 다음과 같다:
 
@@ -43,26 +44,27 @@ db_1a %>%
 ```
 
 ## 1.2번 {.unnumbered}
+
 > 변수간 상관관계를 시각화하고 전처리가 필요함을 설명하라
 
 상관관계를 시각화한다. V1-V3, V14-V17 등 상관계수가 0.75보다 큰 관계가 보인다. 이를 활용하여 종속변수를 측정하면 다중공선성 문제가 발생하여 정확한 독립변수 관계를 측정하기 어렵다.
 
-``` {r}
+```{r}
 db_1a %>% select(-c("Time", "Class")) %>%
   cor() %>% ggcorrplot(type = "lower", lab = TRUE, lab_size = 2)
 ```
 
-
 # 2번 {.unnumbered}
 
 ## 2.1번 {.unnumbered}
+
 > 차원축소 방법 2가지 이상을 비교하고 한 가지를 선택하라.
 
 차원축소 방법에는 PCA 주성분분석과, MDS 다차원 척도법, t-SNE가 있다. 주성분 분석은 데이터 분산을 최대한 보존하면서 차원을 축소하여 정보 손실이 적고 계산 비용이 낮다는 장점이 있지만, 선형 관계에 의존하여 비선형 구조가 잘 표현되기 어렵고 이상치에 민감하게 작동한다. 다차원 척도법은 데이터 샘플 거리를 보존하여 축소하는 방법으로 비선형 구조에도 잘 작동하게 거리 정보를 유지하지만, 계산 비용이 높고 데이터 크기에 민감하다. 마지막으로 t-SEN은 비선형 차원 축소로 시각화에 효과적이지만 하이퍼파라미터에 민감할 수 있다.
 
 여기서는 계신 비용이 낮으며 데이터 손실을 줄이는 **PCA 주성분분석**을 활용한다. 먼저, PCA에 필요한 파라미터인 주성분 개수는 아래 scree 그래프로 파악한다.
 
-``` {r}
+```{r}
 db_1b <- db_1a %>% select(-c("Time", "Class"))
 
 # PCA를 위한 recipe 생성
@@ -87,7 +89,7 @@ data.frame(PC=paste0("PC",1:length(sdev)),
 
 2개 이상이 되면 주성분이 1개 더 생긴다고 크게 설명되지 않은 분산이 커지지 않는다. 따라서 주성분은 2개로 가정한다. 2개로 설정한 PCA 결과를 시각화하면 다음과 같다.
 
-``` {r}
+```{r}
 db_1b <- db_1a %>% select(-c("Time", "Class"))
 # PCA를 위한 recipe 생성
 rec <- recipe(~., data = db_1b) %>%
@@ -113,6 +115,7 @@ tidy_rec %>%
 # 3번 {.unnumbered}
 
 ## 3.1번 {.unnumbered}
+
 > 각 샘플링의 장점과 단점을 설명하고 한 가지를 추천하라.
 
 오버샘플링은 소수 클래스의 샘플 수를 늘려 전체 데이터셋의 균형을 맞추는 방법이다.
@@ -127,16 +130,17 @@ tidy_rec %>%
 
 해당 데이터셋에는 오버샘플링을 적용한 것을 추천한다. Class의 소수 클래스의 개수가 20개로, 언더샘플링을 사용할 시 다수 샘플의 정보를 과도하게 잃기 때문이다.
 
-``` {r}
+```{r}
 table(db_1a$Class)
 ```
 
 ## 3.2번 {.unnumbered}
-> 알고리즘 2가지 이상을 비교하고 성능을 측정하라. 
+
+> 알고리즘 2가지 이상을 비교하고 성능을 측정하라.
 
 두 오버샘플링 알고리즘, 1) SMOTE과 2) upsampling를 사용한다.
 
-``` {r}
+```{r}
 db_1c <- db_1a[, -c("Time")]
 
 # Recipe 만들기
@@ -165,11 +169,12 @@ bind_rows(rec_smote %>% mutate(model = "smote"),
 위 그래프에서 보이듯, 단순히 소수 샘플을 늘린 upsample 알고리즘에 비해 SMOTE 알고리즘이 더 다양한 차원 정보를 포함하고 있어 더 좋은 성능을 보인다고 할 수 있다.
 
 ## 3.3번 {.unnumbered}
+
 > 현재까지 전처리한 데이터를 통해 모델 수행 후, 결과를 분석하라.
 
 분석 결과, 정확도는 95.9%, AUC는 92.1%로 분류 성능을 보인다.
 
-``` {r}
+```{r}
 set.seed(2023)
 
 db_1c <- db_1a[, -c("Time")]
@@ -207,10 +212,10 @@ predictions %>%
 
 ```
 
-
 # 4번 {.unnumbered}
 
 ## 4.1번 {.unnumbered}
+
 > 이상탐지 모델 2가지 이상을 기술하고 장점과 단점을 설명해라.
 
 -   Isolation Forest: 데이터 분포를 가정하지 않고 작동하며, 이상값과 정상값을 분리하는 데 필요한 경로 길이를 기반으로 이상 점수를 계산합니다. 이상값은 일반적으로 더 짧은 경로로 분리될 수 있으므로, 이상 점수가 높을수록 해당 데이터 포인트는 이상값일 가능성이 높음
@@ -221,7 +226,8 @@ predictions %>%
     -   단점: 네트워크 아키텍처에 의존하므로 복잡함
 
 ## 4.2번 {.unnumbered}
->  모델 구현하고 3에서 만든 모델과 비교
+
+> 모델 구현하고 3에서 만든 모델과 비교
 
 ```{r}
 db_1c <- db_1a[, -c("Time")]
@@ -268,6 +274,82 @@ class_metrics <- metric_set(accuracy, sens, spec)
 
 data_preprocessed |>
   class_metrics(truth = Class, estimate = anomaly)
+
+```
+
+# 5번
+
+> 2년 전 제품 생산량이 100,000개, 1년 전 제품 생산량이 150,000개, 그 후 팩토리 기술의 상승으로 제품 생산량이 250,000개 되었을 때, 연평균 상승률의 대푯값을 구하시오. (반올림하여 소수점 아래 둘째자리까지 표기하시오.)
+
+연평균 상승률, CAGR은 다음과 같다. (End Value / Start Value) \^ (1 / Number of Years) - 1
+
+```{r}
+end_value <- 250000
+start_value <- 100000
+year_duration <- 3 - 1
+
+CAGR <- (end_value / start_value) ^ (1 / year_duration)  -  1
+
+cat("연평균 상승률: ", round(CAGR, 2))
+```
+
+12건의 광고 시간 측정. 평균 15.5초, 분산 3.2초 일때 90% 신뢰구간은?
+
+# 8번
+
+> user_counts를 종속변수로 하는 데이터다.
+
+# 8.1번
+
+> 분위수회귀분석(Quantile Regression)을 사용하여 백분위 50분위로 회귀 계수를 구하라. 단, 반올림하여 소수점 아래 둘째자리까지 표기하라.
+
+```{r}
+pacman::p_load(quantreg)
+
+db_8a <- fread("test/27/problem8.csv")
+
+result_8a <- rq(user_counts ~ ., data = db_8a, 0.5)
+
+data.table(variable = c("Intercept", "Temperature", "Wind", "Precipitation"), coefficients = round(result_8a$coefficients, 2)) %>%
+  gt()
+```
+
+8.2번 \> 8.1번 모델의 회귀계수를 활용하여 temperature : 10.5 , wind : 8.2 , precipitation : 3.5 일때 user_counts를 예측하시오
+
+```{r}
+new_data <- data.frame(
+  temperature = 10.5,
+  wind = 8.2,
+  precipitation = 3.5
+)
+
+# 예측 수행
+prediction <- predict(result_8a, newdata = new_data)
+prediction
+
+```
+
+# 9번
+
+> 지하철 호선과 월별, 승객 수 간 상관관계가 있는 지 확인하라. 단, Type III Anova 사용
+
+## 9.1번
+
+> 귀무가설과 대립가설 설정하라.
+
+가설은 다음과 같다.
+
+-   귀무가설: 지하철 호선과 월별 승객 수간의 상관관계가 없다.
+-   대립가설: 지하철 호선과 월별 승객 수간의 상관관계가 있다.
+
+9.2 통계량을 구하고, 대립가설 채택여부를 기술하라
+
+검정통계량인 F 값은 다음과 같다. 이 경우 '지하철 호선(line)'의 p-value는 0.5971이고 '월(month)'의 p-value는 0.7461로, 둘 다 0.05보다 크므로 '지하철 호선'과 '월'이 승객 수에 통계적으로 유의미한 영향을 미치지 않는다는 결론을 내릴 수 있습니다. 이는 지하철 호선과 월이 승객 수의 변동성을 설명하지 못한다는 것을 의미합니다.
+
+```{r}
+db_9a <- fread("test/27/problem9.csv")
+
+anova(lm(total ~ line + month, data = db_9a))
 
 ```
 

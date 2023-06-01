@@ -9,7 +9,7 @@
 필요한 패키지 및 데이터를 불러온다.
 
 ```{r}
-pacman::p_load(tidyverse, tidymodels, data.table, gt, knitr,
+pacman::p_load(tidyverse, tidymodels, data.table, gt, knitr, RcppRoll,
                skimr, ggcorrplot, themis, solitude)
 
 db_1a <- fread("test/26/problem1.csv") 
@@ -335,7 +335,7 @@ cat(t.test(db_6a[gender %in% "male"]$pressure, db_6a[!(gender %in% "male")]$pres
 # 7번 {.unnumbered}
 > problem7.csv는 A시의 20대 남성 411명을 임의로 추출하여 키, 몸무게, 허리둘레를 조사하여 기록한 데이터이다. 이 데이터를 이용하여 20대 남성의 키와 허리둘레가 체중에 영향을 미치는지 알아보고자 한다.
 
-# 7.1번 {.unnumbered}
+## 7.1번 {.unnumbered}
 > 아래 조건을 참고하여 회귀계수(반올림하여 소수점 두자리)를 구하시오. 
 
 조건은 다음과 같다.
@@ -346,16 +346,11 @@ cat(t.test(db_6a[gender %in% "male"]$pressure, db_6a[!(gender %in% "male")]$pres
 - 회귀계수의 사전분포는 부적절한 균일분포(improper uniform prior distribution), 오차항의 분산의 사전분포는 역감마 분포로 지정. 
 - 형상(Shape)모수와 척도(Scale)모수는 각각 0.005로 지정
 
-``` {r}
+``` {r, eval = FALSE}
 pacman::p_load(rstan)
 
 db_7a <- fread("test/26/problem7.csv")
 
-# 필요한 패키지 설치
-if (!require('rstan')) {
-  install.packages('rstan')
-}
-library(rstan)
 
 # 시드넘버 설정
 set.seed(1234)

@@ -1,3 +1,15 @@
 # 준비과정과 전략
 
+- R에서 자주 쓰이는 패키지: https://towardsdatascience.com/a-comprehensive-list-of-handy-r-packages-e85dad294b3d
 
+## Cheetsheet
+- [ggplot2](https://posit.co/wp-content/uploads/2022/10/data-visualization-1.pdf)
+- [dplyr](https://posit.co/wp-content/uploads/2022/10/data-transformation-1.pdf)
+- [tidyr](https://posit.co/wp-content/uploads/2022/10/tidyr.pdf)
+- [lubridate](https://posit.co/wp-content/uploads/2022/10/lubridate-1.pdf)
+- [Keras](https://posit.co/resources/cheatsheets/?type=posit-cheatsheets&_page=1/)
+- [nardl](https://posit.co/wp-content/uploads/2022/10/nardl.pdf)
+- [MLM](https://posit.co/wp-content/uploads/2022/10/Machine-Learning-Modelling-in-R.pdf)
+- [Time Series](https://posit.co/wp-content/uploads/2022/10/time-series.pdf)
+- [survminer](https://posit.co/wp-content/uploads/2022/10/survminer.pdf)
+- [caret](https://posit.co/wp-content/uploads/2022/10/caret.pdf)
